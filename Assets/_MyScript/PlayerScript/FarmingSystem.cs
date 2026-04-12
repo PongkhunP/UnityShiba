@@ -1,0 +1,182 @@
+using UnityEngine;
+using UnityEngine.Audio;
+using Sirenix.OdinInspector;
+
+public class FarmingSystem : SerializedMonoBehaviour
+{
+    [Title("Farming Settings")]
+    [Required] public Camera cam;
+    public LayerMask soilMask;
+    public LayerMask treeMask;
+    [Range(1f, 8f)] public float interactRange = 4f;
+    public bool enableInternalInput = false;
+
+    [Title("Effects & Audio")]
+    public float effectHeightOffset = 0.2f;
+    public AudioClip harvestSFX;
+    public AudioMixerGroup sfxMixerGroup;
+
+    [FoldoutGroup("Runtime"), ReadOnly]
+    private PlayerEnergy energy;
+    private Transform playerTransform;
+
+    private void Awake()
+    {
+        if (!cam) cam = Camera.main;
+        GameObject p = GameObject.FindGameObjectWithTag("Player");
+        if (p) playerTransform = p.transform;
+        energy = FindObjectOfType<PlayerEnergy>();
+    }
+
+    private void Update()
+    {
+        if (!enableInternalInput) return;
+        if (Input.GetMouseButtonDown(0)) HandlePrimaryAction();
+        if (Input.GetMouseButtonDown(1)) TryHarvest();
+    }
+
+    // API
+    public bool TryGetTargetSoil(out SoilTile tile) => TryHitSoil(out tile);
+    public bool TryGetTargetTree(out ChoppableCut_Tree tree) => TryHitTree(out tree);
+
+    public void ChopTree(ItemSO axeItem, ChoppableCut_Tree tree)
+    {
+        if (!axeItem || !tree) return;
+        if (playerTransform && Vector3.Distance(playerTransform.position, tree.transform.position) > interactRange) return;
+
+        float cost = Mathf.Max(0, axeItem.energyCost);
+        if (energy && energy.CurrentEnergy < cost) return;
+
+        tree.GetHit(1f);
+        PlayActionEffects(axeItem, tree.transform.position);
+
+        if (energy) energy.UseEnergy(cost);
+    }
+
+    public void ApplyItemOnTile(ItemSO item, SoilTile tile)
+    {
+        if (!item || !tile) return;
+        if (playerTransform && Vector3.Distance(playerTransform.position, tile.transform.position) > interactRange) return;
+        switch (item.category)
+        {
+            case ItemCategory.Tool: UseTool(item, tile); break;
+            case ItemCategory.Seed: PlantSeed(item, tile); break;
+        }
+    }
+
+    public void TryHarvestExternal(SoilTile specificTile = null)
+    {
+        SoilTile tileToHarvest = specificTile;
+        if (tileToHarvest == null) if (!TryHitSoil(out tileToHarvest)) return;
+        if (playerTransform && Vector3.Distance(playerTransform.position, tileToHarvest.transform.position) > interactRange) return;
+
+        bool AddToInventory(ItemSO item, int amount)
+        {
+            bool success = false;
+            if (InventoryUI.Instance && InventoryUI.Instance.AddItemToInventory(item, amount)) success = true;
+            else if (HotbarUI.Instance && HotbarUI.Instance.AddItemToFirstEmptySlot(item, amount)) success = true;
+            if (success && harvestSFX != null) PlaySoundWithMixer(harvestSFX, tileToHarvest.transform.position, 0f, 1f);
+            return success;
+        }
+        tileToHarvest.HarvestToInventory(AddToInventory);
+    }
+
+    // INTERNAL LOGIC
+    void HandlePrimaryAction() { if (!HotbarUI.Instance) return; var item = HotbarUI.Instance.GetSelectedItem(); if (!item) return; if (!TryHitSoil(out var tile)) return; ApplyItemOnTile(item, tile); }
+
+    void UseTool(ItemSO tool, SoilTile tile)
+    {
+        float cost = Mathf.Max(0, tool.energyCost);
+        if (energy && energy.CurrentEnergy < cost) return;
+        bool success = false;
+        if (tool.toolAction == ToolAction.Hoe) { tile.Till(); success = true; }
+        if (tool.toolAction == ToolAction.Water && tile.isTilled) { tile.Water(); success = true; }
+        if (success) { PlayActionEffects(tool, tile.transform.position); if (energy) energy.UseEnergy(cost); }
+    }
+
+    void PlantSeed(ItemSO seedItem, SoilTile tile)
+    {
+        if (!seedItem.seedCrop) return;
+        if (!HotbarUI.Instance) return;
+        var slot = HotbarUI.Instance.GetSelectedSlot();
+        if (slot == null || slot.amount <= 0) return;
+        if (!tile.CanPlant(seedItem.seedCrop)) return;
+        float cost = Mathf.Max(0, seedItem.energyCost);
+        if (energy && energy.CurrentEnergy < cost) return;
+        tile.Plant(seedItem.seedCrop); PlayActionEffects(seedItem, tile.transform.position);
+        if (energy) energy.UseEnergy(cost); slot.amount -= 1; if (slot.amount <= 0) slot.Clear(); else slot.UpdateUI();
+    }
+
+    void TryHarvest() => TryHarvestExternal(null);
+
+    // ===========================================
+    // [แก้ไข] HELPERS (Snap to Ground + Play + Destroy)
+    // ===========================================
+    // ===========================================
+    // [แก้ไขล่าสุด] ยิงจากฟ้า 500m + ทะลุ Trigger
+    // ===========================================
+    void PlayActionEffects(ItemSO item, Vector3 targetPos)
+    {
+        // 1. ตั้งจุดยิงที่ความสูง 500 เมตร (ที่พิกัด X, Z เดิม)
+        // เพื่อให้แน่ใจว่าอยู่เหนือภูเขาและสิ่งก่อสร้างทุกอย่าง
+        Vector3 rayOrigin = new Vector3(targetPos.x, 500f, targetPos.z);
+
+        Vector3 spawnPos = targetPos; // ค่าเริ่มต้น (เผื่อหาพื้นไม่เจอ)
+
+        RaycastHit hit;
+
+        // 2. ยิง Raycast ลงมา (Vector3.down) ระยะ 1000 เมตร
+        // LayerMask: ~0 คือทุก Layer
+        // QueryTriggerInteraction.Ignore: สำคัญมาก! สั่งให้ทะลุ Trigger ล่องหนไปเลย
+        if (Physics.Raycast(rayOrigin, Vector3.down, out hit, 1000f, ~0, QueryTriggerInteraction.Ignore))
+        {
+            spawnPos = hit.point + Vector3.up * effectHeightOffset;
+        }
+
+        // --- ส่วนสร้าง VFX เหมือนเดิม ---
+        if (item.actionVFX)
+        {
+            GameObject vfxObj = Instantiate(item.actionVFX, spawnPos, Quaternion.identity);
+
+            ParticleSystem ps = vfxObj.GetComponent<ParticleSystem>();
+            if (ps != null)
+            {
+                ps.Play();
+                Destroy(vfxObj, ps.main.duration + ps.main.startLifetime.constantMax + 0.2f);
+            }
+            else
+            {
+                Destroy(vfxObj, 2f);
+            }
+        }
+
+        if (item.actionSFX)
+        {
+            float duration = item.sfxDuration;
+            float pitch = Random.Range(1f, item.pitchRandomMultiplier);
+            PlaySoundWithMixer(item.actionSFX, spawnPos, duration, pitch);
+        }
+    }
+
+    void PlaySoundWithMixer(AudioClip clip, Vector3 position, float durationLimit = 0f, float pitch = 1f)
+    {
+        if (!clip) return; GameObject audioObj = new GameObject("TempAudio_" + clip.name); audioObj.transform.position = position;
+        AudioSource source = audioObj.AddComponent<AudioSource>(); source.clip = clip; source.spatialBlend = 0f; source.volume = 1f; source.pitch = pitch;
+        if (sfxMixerGroup != null) source.outputAudioMixerGroup = sfxMixerGroup;
+        source.Play(); float lifeTime = clip.length; if (durationLimit > 0f && durationLimit < lifeTime) lifeTime = durationLimit; Destroy(audioObj, lifeTime + 0.1f);
+    }
+
+    bool TryHitSoil(out SoilTile tile) { tile = null; Ray ray = cam.ScreenPointToRay(Input.mousePosition); if (Physics.Raycast(ray, out var hit, 100f, soilMask)) { if (playerTransform == null || Vector3.Distance(playerTransform.position, hit.point) <= interactRange) tile = hit.collider.GetComponent<SoilTile>(); } return tile != null; }
+
+    bool TryHitTree(out ChoppableCut_Tree tree)
+    {
+        tree = null;
+        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out var hit, 100f, treeMask))
+        {
+            if (playerTransform == null || Vector3.Distance(playerTransform.position, hit.point) <= interactRange)
+                tree = hit.collider.GetComponent<ChoppableCut_Tree>();
+        }
+        return tree != null;
+    }
+}

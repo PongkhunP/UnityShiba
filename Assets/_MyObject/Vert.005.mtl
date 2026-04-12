@@ -1,0 +1,6 @@
+newmtl block2
+map_Kd block2_Base_color_1001.png
+bump block2_Normal_1001.png
+Kd 1 1 1
+d 1
+
