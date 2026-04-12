@@ -42,7 +42,8 @@ public class FarmingSystem : SerializedMonoBehaviour
     public void ChopTree(ItemSO axeItem, ChoppableCut_Tree tree)
     {
         if (!axeItem || !tree) return;
-        if (playerTransform && Vector3.Distance(playerTransform.position, tree.transform.position) > interactRange) return;
+        // ใช้วัดระยะแบบ FlatPos เพื่อป้องกันปัญหาตัวละครยืนอยู่สูง/ต่ำกว่าต้นไม้
+        if (playerTransform && Vector3.Distance(FlatPos(playerTransform.position), FlatPos(tree.transform.position)) > interactRange) return;
 
         float cost = Mathf.Max(0, axeItem.energyCost);
         if (energy && energy.CurrentEnergy < cost) return;
@@ -56,7 +57,9 @@ public class FarmingSystem : SerializedMonoBehaviour
     public void ApplyItemOnTile(ItemSO item, SoilTile tile)
     {
         if (!item || !tile) return;
-        if (playerTransform && Vector3.Distance(playerTransform.position, tile.transform.position) > interactRange) return;
+        // ใช้วัดระยะแบบ FlatPos 
+        if (playerTransform && Vector3.Distance(FlatPos(playerTransform.position), FlatPos(tile.transform.position)) > interactRange) return;
+
         switch (item.category)
         {
             case ItemCategory.Tool: UseTool(item, tile); break;
@@ -68,7 +71,9 @@ public class FarmingSystem : SerializedMonoBehaviour
     {
         SoilTile tileToHarvest = specificTile;
         if (tileToHarvest == null) if (!TryHitSoil(out tileToHarvest)) return;
-        if (playerTransform && Vector3.Distance(playerTransform.position, tileToHarvest.transform.position) > interactRange) return;
+
+        // ใช้วัดระยะแบบ FlatPos 
+        if (playerTransform && Vector3.Distance(FlatPos(playerTransform.position), FlatPos(tileToHarvest.transform.position)) > interactRange) return;
 
         bool AddToInventory(ItemSO item, int amount)
         {
@@ -110,34 +115,25 @@ public class FarmingSystem : SerializedMonoBehaviour
     void TryHarvest() => TryHarvestExternal(null);
 
     // ===========================================
-    // [แก้ไข] HELPERS (Snap to Ground + Play + Destroy)
-    // ===========================================
-    // ===========================================
-    // [แก้ไขล่าสุด] ยิงจากฟ้า 500m + ทะลุ Trigger
+    // HELPERS (Snap to Ground + Play + Destroy)
     // ===========================================
     void PlayActionEffects(ItemSO item, Vector3 targetPos)
     {
         // 1. ตั้งจุดยิงที่ความสูง 500 เมตร (ที่พิกัด X, Z เดิม)
-        // เพื่อให้แน่ใจว่าอยู่เหนือภูเขาและสิ่งก่อสร้างทุกอย่าง
         Vector3 rayOrigin = new Vector3(targetPos.x, 500f, targetPos.z);
-
-        Vector3 spawnPos = targetPos; // ค่าเริ่มต้น (เผื่อหาพื้นไม่เจอ)
-
+        Vector3 spawnPos = targetPos;
         RaycastHit hit;
 
         // 2. ยิง Raycast ลงมา (Vector3.down) ระยะ 1000 เมตร
-        // LayerMask: ~0 คือทุก Layer
-        // QueryTriggerInteraction.Ignore: สำคัญมาก! สั่งให้ทะลุ Trigger ล่องหนไปเลย
         if (Physics.Raycast(rayOrigin, Vector3.down, out hit, 1000f, ~0, QueryTriggerInteraction.Ignore))
         {
             spawnPos = hit.point + Vector3.up * effectHeightOffset;
         }
 
-        // --- ส่วนสร้าง VFX เหมือนเดิม ---
+        // --- ส่วนสร้าง VFX ---
         if (item.actionVFX)
         {
             GameObject vfxObj = Instantiate(item.actionVFX, spawnPos, Quaternion.identity);
-
             ParticleSystem ps = vfxObj.GetComponent<ParticleSystem>();
             if (ps != null)
             {
@@ -166,16 +162,46 @@ public class FarmingSystem : SerializedMonoBehaviour
         source.Play(); float lifeTime = clip.length; if (durationLimit > 0f && durationLimit < lifeTime) lifeTime = durationLimit; Destroy(audioObj, lifeTime + 0.1f);
     }
 
-    bool TryHitSoil(out SoilTile tile) { tile = null; Ray ray = cam.ScreenPointToRay(Input.mousePosition); if (Physics.Raycast(ray, out var hit, 100f, soilMask)) { if (playerTransform == null || Vector3.Distance(playerTransform.position, hit.point) <= interactRange) tile = hit.collider.GetComponent<SoilTile>(); } return tile != null; }
+    // ===========================================
+    // [อัปเกรด] ตัดแกน Y ทิ้ง และเพิ่มความยาวเลเซอร์เป็น 1000f
+    // ===========================================
+    private Vector3 FlatPos(Vector3 pos)
+    {
+        return new Vector3(pos.x, 0, pos.z);
+    }
+
+    bool TryHitSoil(out SoilTile tile)
+    {
+        tile = null;
+        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+
+        // อัปเกรดความยาวเลเซอร์เป็น 1000f
+        if (Physics.Raycast(ray, out var hit, 1000f, soilMask))
+        {
+            // ใช้ FlatPos วัดระยะ
+            if (playerTransform == null || Vector3.Distance(FlatPos(playerTransform.position), FlatPos(hit.point)) <= interactRange)
+            {
+                // ใช้ GetComponentInParent เผื่อคลิกโดนโมเดลลูก
+                tile = hit.collider.GetComponentInParent<SoilTile>();
+            }
+        }
+        return tile != null;
+    }
 
     bool TryHitTree(out ChoppableCut_Tree tree)
     {
         tree = null;
         Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out var hit, 100f, treeMask))
+
+        // อัปเกรดความยาวเลเซอร์เป็น 1000f
+        if (Physics.Raycast(ray, out var hit, 1000f, treeMask))
         {
-            if (playerTransform == null || Vector3.Distance(playerTransform.position, hit.point) <= interactRange)
-                tree = hit.collider.GetComponent<ChoppableCut_Tree>();
+            // ใช้ FlatPos วัดระยะ
+            if (playerTransform == null || Vector3.Distance(FlatPos(playerTransform.position), FlatPos(hit.point)) <= interactRange)
+            {
+                // ใช้ GetComponentInParent เผื่อคลิกโดนโมเดลลูก
+                tree = hit.collider.GetComponentInParent<ChoppableCut_Tree>();
+            }
         }
         return tree != null;
     }
