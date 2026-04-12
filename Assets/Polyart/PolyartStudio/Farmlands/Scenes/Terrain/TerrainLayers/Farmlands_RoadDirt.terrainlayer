@@ -9,7 +9,7 @@ TerrainLayer:
   m_Name: Farmlands_RoadDirt
   m_DiffuseTexture: {fileID: 2800000, guid: ee3ca745d0195c3439dd8ecf3308951d, type: 3}
   m_NormalMapTexture: {fileID: 2800000, guid: 18ca980507a5ff141a0534acb0acebc7, type: 3}
-  m_MaskMapTexture: {fileID: 2800000, guid: 06da5119f85dcca4e8098379d630fe19, type: 3}
+  m_MaskMapTexture: {fileID: 0}
   m_TileSize: {x: 10, y: 10}
   m_TileOffset: {x: 0, y: 0}
   m_Specular: {r: 0, g: 0, b: 0, a: 0}
