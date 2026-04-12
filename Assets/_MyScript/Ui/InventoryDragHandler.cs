@@ -95,7 +95,7 @@ public class InventoryDragHandler : MonoBehaviour
         if (!dragIcon) return;
 
         dragIcon.sprite = sprite;
-        dragIcon.SetNativeSize();
+        //dragIcon.SetNativeSize();
         dragIcon.gameObject.SetActive(true);
 
         if (canvas)
