@@ -120,6 +120,20 @@ public class DebtPaymentUI : MonoBehaviour
     {
         totalPaidThisVisit = 0;
 
+        // [FIX] เปิด Panel ก่อนเสมอ — Coroutine จะ Start ไม่ได้ถ้า GameObject inactive
+        if (paymentPanel) paymentPanel.SetActive(true);
+        if (customInputPanel) customInputPanel.SetActive(false);
+        if (resultPanel) resultPanel.SetActive(false);
+
+        // [FIX] Reset ปุ่มทุกครั้งที่เจ้าหนี้มาใหม่
+        SetButtonsActive(true);
+        if (refuseBtn)
+        {
+            refuseBtn.onClick.RemoveAllListeners();
+            refuseBtn.onClick.AddListener(OnRefuse);
+            UpdateRefuseButtonText("ไม่จ่าย");
+        }
+
         // Portrait + ชื่อ
         if (portraitImage && collectorPortrait)
         {
@@ -128,16 +142,11 @@ public class DebtPaymentUI : MonoBehaviour
         }
         if (collectorNameText) collectorNameText.text = collectorName;
 
-        // Dialogue
+        // Dialogue (เรียกหลัง SetActive แล้ว)
         TypeDialogue(arrivalLine);
 
         // อัปเดตข้อมูล
         RefreshInfo();
-
-        // แสดง
-        if (paymentPanel) paymentPanel.SetActive(true);
-        if (customInputPanel) customInputPanel.SetActive(false);
-        if (resultPanel) resultPanel.SetActive(false);
     }
 
     void RefreshInfo()
@@ -158,7 +167,7 @@ public class DebtPaymentUI : MonoBehaviour
             yourMoneyText.text = $"เงินของคุณ: <color=#FFDD44>¥{myMoney:N0}</color>";
 
         if (lateFeeWarningText)
-            lateFeeWarningText.text = $"* จ่ายไม่ถึงขั้นต่ำ → ค่าปรับ ¥{debt.lateFee:N0}";
+            lateFeeWarningText.text = $"จ่ายไม่ถึงขั้นต่ำ → ค่าปรับ ¥{debt.lateFee:N0}";
 
         // อัปเดตปุ่ม
         if (payMinimumBtn)
@@ -335,8 +344,11 @@ public class DebtPaymentUI : MonoBehaviour
     {
         if (paymentPanel) paymentPanel.SetActive(false);
         if (resultPanel) resultPanel.SetActive(false);
+        if (customInputPanel) customInputPanel.SetActive(false);
 
-        // re-wire ปุ่ม refuse กลับ
+        // [FIX] คืนปุ่มทุกอัน + re-wire ปุ่ม refuse กลับเสมอ
+        SetButtonsActive(true);
+
         if (refuseBtn)
         {
             refuseBtn.onClick.RemoveAllListeners();
@@ -368,8 +380,16 @@ public class DebtPaymentUI : MonoBehaviour
     {
         if (typeCoroutine != null) StopCoroutine(typeCoroutine);
 
-        if (dialogueText != null)
-            typeCoroutine = StartCoroutine(TypeRoutine(text));
+        if (dialogueText == null) return;
+
+        // [FIX] ถ้า GameObject inactive อยู่ → แสดงข้อความทันทีโดยไม่ใช้ Coroutine
+        if (!gameObject.activeInHierarchy)
+        {
+            dialogueText.text = text;
+            return;
+        }
+
+        typeCoroutine = StartCoroutine(TypeRoutine(text));
     }
 
     IEnumerator TypeRoutine(string text)
