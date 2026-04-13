@@ -28,6 +28,12 @@ public class GameManager : MonoBehaviour
     [FoldoutGroup("Core Refs"), Required, SerializeField]
     private ItemDatabase itemDatabase;
 
+    [FoldoutGroup("Core Refs"), SerializeField]
+    private PlayerWallet playerWallet;
+
+    [FoldoutGroup("Core Refs"), SerializeField]
+    private DebtCollectorManager debtManager;
+
     [FoldoutGroup("Farming"), Required, SerializeField]
     [InlineEditor]
     private CropSO[] allCrops;
@@ -65,7 +71,7 @@ public class GameManager : MonoBehaviour
         Debug.Log("[GameManager] Start new game");
     }
 
-    // === »ØèÁäÇé¡´¨Ò¡ Inspector â´ÂµÃ§ ===
+    // === ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½é¡´ï¿½Ò¡ Inspector ï¿½ÂµÃ§ ===
     [FoldoutGroup("Debug Buttons")]
     [Button(ButtonSizes.Medium)]
     private void DebugSave() => SaveGame();
@@ -93,6 +99,16 @@ public class GameManager : MonoBehaviour
         data.minute = timeOfDay.Minute;
 
         data.currentEnergy = playerEnergy.CurrentEnergy;
+
+        // Economy
+        if (playerWallet != null)
+            data.money = playerWallet.Money;
+        if (debtManager != null)
+        {
+            data.currentDebt = debtManager.CurrentDebt;
+            data.missedPayments = debtManager.MissedPayments;
+            data.monthsPassed = debtManager.MonthsPassed;
+        }
 
         // Inventory
         data.inventorySlots = new InventorySlotData[inventoryUI.slots.Length];
@@ -153,6 +169,16 @@ public class GameManager : MonoBehaviour
         calendar.SetTime01(t01, true);
 
         playerEnergy.SetEnergy(data.currentEnergy);
+
+        // Economy
+        if (playerWallet != null)
+            playerWallet.SetMoney(data.money);
+        if (debtManager != null)
+        {
+            debtManager.SetCurrentDebt(data.currentDebt);
+            debtManager.SetMissedPayments(data.missedPayments);
+            debtManager.SetMonthsPassed(data.monthsPassed);
+        }
 
         // Inventory
         for (int i = 0; i < inventoryUI.slots.Length; i++)

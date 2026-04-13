@@ -3,7 +3,7 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
-    // ... (Header à´ÔÁ) ...
+    // ... (Header ï¿½ï¿½ï¿½) ...
     [Header("Movement")]
     public float walkSpeed = 2f;
     public float runSpeed = 4f;
@@ -32,7 +32,7 @@ public class PlayerController : MonoBehaviour
     private ItemSO _cachedItem;
     private SoilTile _cachedTile;
 
-    // [ÍÑ»à´µª×èÍ¤ÅÒÊµÃ§¹Õé]
+    // [ï¿½Ñ»à´µï¿½ï¿½ï¿½Í¤ï¿½ï¿½ÊµÃ§ï¿½ï¿½ï¿½]
     private ChoppableCut_Tree _cachedTree;
 
     private bool _hasCachedSoilAction;
@@ -49,6 +49,14 @@ public class PlayerController : MonoBehaviour
         if (HotbarUI.Instance != null) HotbarUI.Instance.IsInputLocked = isBusyAction;
         if (InventoryUI.IsOpen) return;
 
+        // [FIX] à¸•à¸£à¸§à¸ˆ Dialogue à¸à¹ˆà¸­à¸™ Movement à¹€à¸žà¸·à¹ˆà¸­à¹„à¸¡à¹ˆà¹ƒà¸«à¹‰à¹€à¸”à¸´à¸™à¸‚à¸“à¸°à¸„à¸¸à¸¢ NPC
+        if (DialogueManager.Instance != null && DialogueManager.Instance.IsDialogueActive)
+        {
+            animator.SetFloat("Speed", 0);
+            animator.SetBool("IsRunning", false);
+            return;
+        }
+
         if (isSitting) { HandleSitInput(); return; }
 
         UpdateHoldStateFromHotbar();
@@ -57,16 +65,9 @@ public class PlayerController : MonoBehaviour
 
         HandleMovement();
         HandleActionInput();
-        // à¾ÔèÁºÃÃ·Ñ´¹ÕéäÇéº¹ÊØ´
-        if (DialogueManager.Instance != null && DialogueManager.Instance.IsDialogueActive)
-        {
-            // ÊÑè§ãËéËÂØ´à´Ô¹Í¹ÔàÁªÑè¹ (¶éÒÁÕ)
-            // animator.SetFloat("Speed", 0); 
-            return;
-        }
     }
 
-    // ... (HandleMovement àËÁ×Í¹à´ÔÁ) ...
+    // ... (HandleMovement ï¿½ï¿½ï¿½ï¿½Í¹ï¿½ï¿½ï¿½) ...
     private void HandleMovement()
     {
         isGrounded = controller.isGrounded;
@@ -96,7 +97,7 @@ public class PlayerController : MonoBehaviour
             var item = HotbarUI.Instance.GetSelectedItem();
             if (!item) return;
 
-            // 1. ¶éÒà»ç¹¢ÇÒ¹ -> ËÒµé¹äÁé
+            // 1. ï¿½ï¿½ï¿½ï¿½ç¹¢ï¿½Ò¹ -> ï¿½Òµï¿½ï¿½ï¿½ï¿½
             if (item.category == ItemCategory.Tool && item.toolAction == ToolAction.Axe)
             {
                 if (farmingSystem.TryGetTargetTree(out var tree))
@@ -112,7 +113,7 @@ public class PlayerController : MonoBehaviour
                 return;
             }
 
-            // 2. ¶éÒà»ç¹ÍÂèÒ§Í×è¹ -> ËÒ´Ô¹
+            // 2. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò§ï¿½ï¿½ï¿½ -> ï¿½Ò´Ô¹
             if (farmingSystem.TryGetTargetSoil(out var tile))
             {
                 _cachedItem = item;
@@ -179,7 +180,7 @@ public class PlayerController : MonoBehaviour
         _cachedTree = null;
     }
 
-    // ... (ÊèÇ¹ Hold/Sit/Fish àËÁ×Í¹à´ÔÁ) ...
+    // ... (ï¿½ï¿½Ç¹ Hold/Sit/Fish ï¿½ï¿½ï¿½ï¿½Í¹ï¿½ï¿½ï¿½) ...
     private void UpdateHoldStateFromHotbar() { if (!HotbarUI.Instance) { animator.SetBool("HoldItem", false); return; } var item = HotbarUI.Instance.GetSelectedItem(); var slot = HotbarUI.Instance.GetSelectedSlot(); bool shouldHold = item != null && (item.category == ItemCategory.Tool || (slot != null && slot.amount > 0)); animator.SetBool("HoldItem", shouldHold); }
     public void Sit(Transform sitPoint) { if (isSitting) return; currentSitPoint = sitPoint; isSitting = true; isBusyAction = false; controller.enabled = false; transform.position = sitPoint.position; transform.rotation = sitPoint.rotation; animator.SetBool("Sit", true); }
     private void HandleSitInput() { if (Input.GetKeyDown(KeyCode.E)) StandUpFromSit(); }

@@ -12,17 +12,17 @@ public class SoilTile : MonoBehaviour
     public float stageTimer;
 
     [Header("Refs")]
-    [Tooltip("¨Ø´à¡Ô´µé¹äÁé (¶éÒàÇé¹ÇèÒ§¨ÐãªéµÓáË¹è§ GameObject ¹Õé)")]
+    [Tooltip("ï¿½Ø´ï¿½Ô´ï¿½ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë¹ï¿½ GameObject ï¿½ï¿½ï¿½)")]
     public Transform cropParent;
 
     [Header("Ground Visuals")]
-    [Tooltip("¨Ø´à¡Ô´ prefab ´Ô¹ (¶éÒàÇé¹ÇèÒ§¨ÐãªéµÓáË¹è§ GameObject ¹Õé)")]
+    [Tooltip("ï¿½Ø´ï¿½Ô´ prefab ï¿½Ô¹ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë¹ï¿½ GameObject ï¿½ï¿½ï¿½)")]
     public Transform groundParent;
 
-    [Tooltip("Prefab ´Ô¹áËé§ (ËÅÑ§¾Ç¹´Ô¹)")]
+    [Tooltip("Prefab ï¿½Ô¹ï¿½ï¿½ï¿½ (ï¿½ï¿½Ñ§ï¿½Ç¹ï¿½Ô¹)")]
     public GameObject groundDryPrefab;
 
-    [Tooltip("Prefab ´Ô¹à»ÕÂ¡ (ËÅÑ§Ã´¹éÓ)")]
+    [Tooltip("Prefab ï¿½Ô¹ï¿½ï¿½Â¡ (ï¿½ï¿½Ñ§Ã´ï¿½ï¿½ï¿½)")]
     public GameObject groundWetPrefab;
 
     private GameObject currentCropObj;
@@ -31,30 +31,30 @@ public class SoilTile : MonoBehaviour
     // ================== STATE CHANGE ==================
 
     /// <summary>
-    /// ¾Ç¹´Ô¹¤ÃÑé§áÃ¡ -> ãËé´Ô¹¡ÅÒÂà»ç¹´Ô¹áËé§
+    /// ï¿½Ç¹ï¿½Ô¹ï¿½ï¿½ï¿½ï¿½ï¿½Ã¡ -> ï¿½ï¿½ï¿½Ô¹ï¿½ï¿½ï¿½ï¿½ï¿½ç¹´Ô¹ï¿½ï¿½ï¿½
     /// </summary>
     public void Till()
     {
-        if (isTilled) return;           // ä¶á¤è¤ÃÑé§áÃ¡
+        if (isTilled) return;           // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã¡
         isTilled = true;
         isWatered = false;
         UpdateGroundVisual();
     }
 
     /// <summary>
-    /// Ã´¹éÓ -> µéÍ§ä¶¡èÍ¹¶Ö§¨ÐÃ´ä´é, áÅéÇà»ÅÕèÂ¹´Ô¹à»ç¹´Ô¹à»ÕÂ¡
+    /// Ã´ï¿½ï¿½ï¿½ -> ï¿½ï¿½Í§ä¶¡ï¿½Í¹ï¿½Ö§ï¿½ï¿½Ã´ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¹ï¿½Ô¹ï¿½ç¹´Ô¹ï¿½ï¿½Â¡
     /// </summary>
     public void Water()
     {
-        if (!isTilled) return;          // ÂÑ§äÁè¾Ç¹´Ô¹ ËéÒÁÃ´
+        if (!isTilled) return;          // ï¿½Ñ§ï¿½ï¿½ï¿½Ç¹ï¿½Ô¹ ï¿½ï¿½ï¿½ï¿½Ã´
         isWatered = true;
         UpdateGroundVisual();
     }
 
     public bool CanPlant(CropSO c)
     {
-        // ÂÑ§ãªéà§×èÍ¹ä¢à´ÔÁ: µéÍ§ä¶áÅéÇ, äÁèÁÕ¾×ªÍÂÙè, áÅÐ Crop äÁèà»ç¹ null
-        // ¶éÒÍÂÒ¡ãËé "µéÍ§Ã´¹éÓ¡èÍ¹»ÅÙ¡" ãËéà¾ÔèÁ && isWatered à¢éÒä»ä´é
+        // ï¿½Ñ§ï¿½ï¿½ï¿½ï¿½ï¿½Í¹ï¿½ï¿½ï¿½ï¿½: ï¿½ï¿½Í§ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½Õ¾×ªï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ Crop ï¿½ï¿½ï¿½ï¿½ï¿½ null
+        // ï¿½ï¿½ï¿½ï¿½ï¿½Ò¡ï¿½ï¿½ï¿½ "ï¿½ï¿½Í§Ã´ï¿½ï¿½Ó¡ï¿½Í¹ï¿½ï¿½Ù¡" ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ && isWatered ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         return isTilled && crop == null && c != null;
     }
 
@@ -65,9 +65,9 @@ public class SoilTile : MonoBehaviour
         crop = c;
         stageIndex = 0;
         stageTimer = 0f;
-        // äÁèÃÕà«çµ isWatered à¾×èÍãËéàÅ×Í¡ flow ä´é·Ñé§
-        // - ä¶ -> »ÅÙ¡ -> Ã´¹éÓ (áºº Stardew)
-        // - ä¶ -> Ã´¹éÓ -> »ÅÙ¡ (áºº·Õè¤Ø³ÍÂÒ¡·Ó)
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ isWatered ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¡ flow ï¿½ï¿½ï¿½ï¿½
+        // - ï¿½ -> ï¿½ï¿½Ù¡ -> Ã´ï¿½ï¿½ï¿½ (áºº Stardew)
+        // - ï¿½ -> Ã´ï¿½ï¿½ï¿½ -> ï¿½ï¿½Ù¡ (áººï¿½ï¿½ï¿½Ø³ï¿½ï¿½Ò¡ï¿½ï¿½)
         SpawnCropStage();
     }
 
@@ -90,12 +90,12 @@ public class SoilTile : MonoBehaviour
 
         if (added && crop.destroyOnHarvest)
         {
-            // à¡çºáÅéÇ´Ô¹¡ÅÑºà»ç¹ "ÂÑ§äÁè¾Ç¹"
+            // ï¿½ï¿½ï¿½ï¿½ï¿½Ç´Ô¹ï¿½ï¿½Ñºï¿½ï¿½ "ï¿½Ñ§ï¿½ï¿½ï¿½Ç¹"
             ClearCrop();
         }
         else if (added)
         {
-            // ¶éÒäÁè·ÓÅÒÂ ãËéÂéÍ¹¡ÅÑºä» stage ¡èÍ¹ÊØ´·éÒÂ
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¹ï¿½ï¿½Ñºï¿½ stage ï¿½ï¿½Í¹ï¿½Ø´ï¿½ï¿½ï¿½ï¿½
             stageIndex = Mathf.Max(0, crop.growthPrefabs.Length - 2);
             stageTimer = 0f;
             isWatered = false;
@@ -116,7 +116,7 @@ public class SoilTile : MonoBehaviour
         if (currentCropObj) Destroy(currentCropObj);
         currentCropObj = null;
 
-        UpdateGroundVisual(); // à¤ÅÕÂÃì´Ô¹ãËéËÒÂä»´éÇÂ
+        UpdateGroundVisual(); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ä»´ï¿½ï¿½ï¿½
     }
 
     // ================== UPDATE GROWTH ==================
@@ -126,11 +126,15 @@ public class SoilTile : MonoBehaviour
         if (crop == null) return;
         if (!isTilled) return;
 
-        // âµä´éà©¾ÒÐµÍ¹·ÕèÃ´¹éÓáÅéÇ (¶éÒ Crop ÃÐºØÇèÒµéÍ§¡ÒÃ)
+        // ï¿½ï¿½ï¿½à©¾ï¿½ÐµÍ¹ï¿½ï¿½ï¿½Ã´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ Crop ï¿½Ðºï¿½ï¿½ï¿½Òµï¿½Í§ï¿½ï¿½ï¿½)
         bool canGrow = !crop.requiresWaterEachStage || isWatered;
         if (!canGrow) return;
 
-        stageTimer += Time.deltaTime;
+        // [FIX] à¹ƒà¸Šà¹‰ game-time à¹à¸—à¸™ real-time à¹€à¸žà¸·à¹ˆà¸­à¹ƒà¸«à¹‰à¸žà¸·à¸Šà¹‚à¸• sync à¸à¸±à¸šà¹€à¸§à¸¥à¸²à¹ƒà¸™à¹€à¸à¸¡
+        if (TimeOfDaySystem.Instance != null)
+            stageTimer += TimeOfDaySystem.Instance.GameHoursDelta;
+        else
+            stageTimer += Time.deltaTime;
         float target = crop.stageDurations[Mathf.Clamp(stageIndex, 0, crop.stageDurations.Length - 1)];
 
         if (stageTimer >= target)
@@ -173,7 +177,7 @@ public class SoilTile : MonoBehaviour
 
         if (!isTilled)
         {
-            // ÂÑ§äÁè¾Ç¹´Ô¹ -> äÁèÁÕ prefab ´Ô¹
+            // ï¿½Ñ§ï¿½ï¿½ï¿½Ç¹ï¿½Ô¹ -> ï¿½ï¿½ï¿½ï¿½ï¿½ prefab ï¿½Ô¹
             return;
         }
 
@@ -238,6 +242,6 @@ public class SoilTile : MonoBehaviour
         stageTimer = d.stageTimer;
 
         SpawnCropStage();
-        UpdateGroundVisual(); // ãËé´Ô¹¡ÅÑºÁÒÍÂÙèµÒÁÊ¶Ò¹Ð·Õèà«¿äÇé
+        UpdateGroundVisual(); // ï¿½ï¿½ï¿½Ô¹ï¿½ï¿½Ñºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¶Ò¹Ð·ï¿½ï¿½à«¿ï¿½ï¿½ï¿½
     }
 }

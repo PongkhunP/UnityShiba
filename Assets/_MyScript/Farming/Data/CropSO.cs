@@ -11,10 +11,11 @@ public class CropSO : SerializedScriptableObject
     public Sprite icon;
 
     [BoxGroup("Growth"), TableList]
-    [InfoBox("��Ҵ�ͧ growthPrefabs ��� stageDurations �����ҡѹ")]
+    [InfoBox("��Ҵ�ͧ growthPrefabs ��� stageDurations �����ҡѹ")]
     public GameObject[] growthPrefabs;
 
     [BoxGroup("Growth")]
+    [Tooltip("เวลาแต่ละ stage เป็น 'ชั่วโมงในเกม' (เช่น 6 = 6 ชม.ในเกม, 24 = 1 วันในเกม)")]
     public float[] stageDurations;
 
     [BoxGroup("Growth")]

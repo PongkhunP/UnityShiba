@@ -23,12 +23,12 @@ public class TimeOfDaySystem : MonoBehaviour
     public AnimationCurve moonIntensity;
 
     [Header("Environment")]
-    public Material skyboxMaterial; // Õ—ππ’È§◊Õµ—«∑’Ë®–∂Ÿ°·°È§Ë“ ’ (ª°µ‘§◊Õ∑ÈÕßøÈ“µÕπ‡™È“)
+    public Material skyboxMaterial; // ÔøΩ—πÔøΩÔøΩÔøΩÔøΩÕµÔøΩ«∑ÔøΩÔøΩ–∂Ÿ°ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ (ÔøΩÔøΩÔøΩ‘§ÔøΩÕ∑ÔøΩÕßÔøΩÔøΩ“µÕπÔøΩÔøΩÔøΩ)
 
-    // [‡æ‘Ë¡„À¡Ë]  ”À√—∫ ≈—∫ Skybox
+    // [ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ] ÔøΩÔøΩÔøΩÔøΩ—∫ÔøΩÔøΩ—∫ Skybox
     [Header("Skybox Swapping")]
-    public Material daySkybox;     // ≈“° Material ∑ÈÕßøÈ“ "µÕπ‡™È“" „ Ë∑’Ëπ’Ë
-    public Material nightSkybox;   // ≈“° Material ∑ÈÕßøÈ“ "µÕπ§◊π" (∑’Ë¡’¥“«) „ Ë∑’Ëπ’Ë
+    public Material daySkybox;     // ÔøΩ“° Material ÔøΩÔøΩÕßÔøΩÔøΩÔøΩ "ÔøΩÕπÔøΩÔøΩÔøΩ" ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ
+    public Material nightSkybox;   // ÔøΩ“° Material ÔøΩÔøΩÕßÔøΩÔøΩÔøΩ "ÔøΩÕπÔøΩ◊π" (ÔøΩÔøΩÔøΩÔøΩ’¥ÔøΩÔøΩ) ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ
 
     public Gradient skyTint;
     public Gradient groundTint;
@@ -55,6 +55,21 @@ public class TimeOfDaySystem : MonoBehaviour
     public int Hour => Mathf.FloorToInt(time01 * 24f);
     public int Minute => Mathf.FloorToInt(((time01 * 24f) % 1) * 60f);
 
+    /// <summary>
+    /// ‡∏à‡∏≥‡∏ô‡∏ß‡∏ô "‡∏ä‡∏±‡πà‡∏ß‡πÇ‡∏°‡∏á‡πÉ‡∏ô‡πÄ‡∏Å‡∏°" ‡∏ó‡∏µ‡πà‡∏ú‡πà‡∏≤‡∏ô‡πÑ‡∏õ‡πÉ‡∏ô frame ‡∏ô‡∏µ‡πâ
+    /// ‡πÉ‡∏ä‡πâ‡∏™‡∏≥‡∏´‡∏£‡∏±‡∏ö‡∏£‡∏∞‡∏ö‡∏ö‡∏ó‡∏µ‡πà‡∏ï‡πâ‡∏≠‡∏á‡πÇ‡∏ï‡∏ï‡∏≤‡∏° game-time ‡πÄ‡∏ä‡πà‡∏ô ‡∏û‡∏∑‡∏ä
+    /// ‡∏ï‡∏±‡∏ß‡∏≠‡∏¢‡πà‡∏≤‡∏á: ‡∏ñ‡πâ‡∏≤ dayLengthInMinutes = 8 ‚Üí 1 ‡∏ß‡∏¥‡∏ô‡∏≤‡∏ó‡∏µ‡∏à‡∏£‡∏¥‡∏á = 24/(8*60) = 0.05 ‡∏ä‡∏°.‡πÉ‡∏ô‡πÄ‡∏Å‡∏°
+    /// </summary>
+    public float GameHoursDelta
+    {
+        get
+        {
+            float secondsPerDay = Mathf.Max(1f, dayLengthInMinutes * 60f);
+            float dayFraction = Time.deltaTime / secondsPerDay; // ‡∏™‡∏±‡∏î‡∏™‡πà‡∏ß‡∏ô‡∏Ç‡∏≠‡∏á‡∏ß‡∏±‡∏ô‡∏ó‡∏µ‡πà‡∏ú‡πà‡∏≤‡∏ô‡πÑ‡∏õ
+            return dayFraction * 24f; // ‡πÅ‡∏õ‡∏•‡∏á‡πÄ‡∏õ‡πá‡∏ô‡∏ä‡∏±‡πà‡∏ß‡πÇ‡∏°‡∏á‡πÉ‡∏ô‡πÄ‡∏Å‡∏°
+        }
+    }
+
     void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -79,7 +94,7 @@ public class TimeOfDaySystem : MonoBehaviour
 
     void UpdateLighting()
     {
-        // 1. À¡ÿπ¥«ßÕ“∑‘µ¬Ï
+        // 1. ÔøΩÔøΩÿπÔøΩ«ßÔøΩ“∑‘µÔøΩÔøΩ
         float sunAngle = (time01 * 360f) - 90f;
         if (directionalLight != null)
         {
@@ -93,7 +108,7 @@ public class TimeOfDaySystem : MonoBehaviour
                 directionalLight.shadows = LightShadows.Soft;
         }
 
-        // 2. À¡ÿπ¥«ß®—π∑√Ï
+        // 2. ÔøΩÔøΩÿπÔøΩ«ßÔøΩ—πÔøΩÔøΩÔøΩ
         if (moonLight != null)
         {
             moonLight.transform.rotation = Quaternion.Euler(sunAngle - 180f, 170f, 0f);
@@ -101,35 +116,35 @@ public class TimeOfDaySystem : MonoBehaviour
             if (moonIntensity != null) moonLight.intensity = moonIntensity.Evaluate(time01);
         }
 
-        // 3. [·°È„À¡Ë]  ≈—∫ Skybox ·≈–ª√—∫ ’
+        // 3. [ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ] ÔøΩÔøΩ—∫ Skybox ÔøΩÔøΩ–ªÔøΩ—∫ÔøΩÔøΩ
         bool isNight = (time01 >= nightStart || time01 < dawnStart);
 
-        // ∂È“¡’∑—Èß 2 ·∫∫ „ÀÈ ≈—∫µ“¡‡«≈“
+        // ÔøΩÔøΩÔøΩÔøΩ’∑ÔøΩÔøΩ 2 ·∫∫ ÔøΩÔøΩÔøΩÔøΩÔøΩ—∫ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ
         if (daySkybox != null && nightSkybox != null)
         {
             Material targetSky = isNight ? nightSkybox : daySkybox;
             if (RenderSettings.skybox != targetSky)
             {
                 RenderSettings.skybox = targetSky;
-                DynamicGI.UpdateEnvironment(); //  —Ëß Unity Õ—ª‡¥µ· ß –∑ÈÕπ‚≈°„À¡Ë
+                DynamicGI.UpdateEnvironment(); // ÔøΩÔøΩÔøΩ Unity ÔøΩ—ª‡¥µÔøΩ ßÔøΩ–∑ÔøΩÕπÔøΩ≈°ÔøΩÔøΩÔøΩÔøΩ
             }
         }
 
-        // 4. °“√ª√—∫ ’ Skybox (Tint) 
-        // ‡√“®–ª√—∫ ’‡©æ“–µÕπ‡ªÁπ "°≈“ß«—π" À√◊Õ∂È“„™È Skybox ‡¥’¬«
-        // ‡æ√“– Skybox °≈“ß§◊π¡—°®–‡ªÁπ√Ÿª¥“« «¬Õ¬ŸË·≈È« ‰¡ËµÈÕß‰ª¬ÈÕ¡ ’∑—∫
+        // 4. ÔøΩÔøΩ√ªÔøΩ—∫ÔøΩÔøΩ Skybox (Tint) 
+        // ÔøΩÔøΩ“®–ªÔøΩ—∫ÔøΩÔøΩ‡©æÔøΩ–µÕπÔøΩÔøΩ "ÔøΩÔøΩ“ßÔøΩ—π" ÔøΩÔøΩÔøΩÕ∂ÔøΩÔøΩÔøΩÔøΩ Skybox ÔøΩÔøΩÔøΩÔøΩ
+        // ÔøΩÔøΩÔøΩÔøΩ Skybox ÔøΩÔøΩ“ßÔøΩ◊πÔøΩ—°ÔøΩÔøΩÔøΩÔøΩÔøΩŸªÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ ÔøΩÔøΩÔøΩÔøΩÕßÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ’∑—∫
         if (skyboxMaterial != null && !isNight)
         {
             if (skyTint != null) skyboxMaterial.SetColor("_SkyTint", skyTint.Evaluate(time01));
             if (groundTint != null) skyboxMaterial.SetColor("_GroundColor", groundTint.Evaluate(time01));
 
-            // Exposure ª√—∫‰¥È∑—Èß«—π∑—Èß§◊π ‡æ◊ËÕ§«“¡ «Ë“ß∑’Ë‡À¡“– ¡
+            // Exposure ÔøΩÔøΩ—∫ÔøΩÔøΩÔøΩÔøΩÔøΩ—πÔøΩÔøΩÈß§◊π ÔøΩÔøΩÔøΩÕ§ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ“ßÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ
             float exposureTarget = isNight ? skyExposureNight : skyExposureDay;
-            // skyboxMaterial.SetFloat("_Exposure", exposureTarget); // ∫√√∑—¥π’È∂È“„™È§π≈– Material Õ“®®–‰¡ËµÈÕßª√—∫
+            // skyboxMaterial.SetFloat("_Exposure", exposureTarget); // ÔøΩÔøΩ√∑—¥ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÈ§πÔøΩÔøΩ Material ÔøΩ“®ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÕßÔøΩÔøΩ—∫
         }
         else if (skyboxMaterial != null && isNight)
         {
-            // ∂È“Õ¬“°§ÿ¡§«“¡ «Ë“ßµÕπ°≈“ß§◊π¥È«¬ „ÀÈ·°Èµ√ßπ’È
+            // ÔøΩÔøΩÔøΩÔøΩÔøΩ“°ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ“ßÔøΩÕπÔøΩÔøΩ“ßÔøΩ◊πÔøΩÔøΩÔøΩÔøΩ ÔøΩÔøΩÔøΩÔøΩÔøΩ√ßÔøΩÔøΩÔøΩ
             // skyboxMaterial.SetFloat("_Exposure", skyExposureNight);
         }
 

@@ -48,6 +48,12 @@ public class SaveData
     // Status
     public float currentEnergy;
 
+    // Economy
+    public int money;
+    public int currentDebt;
+    public int missedPayments;
+    public int monthsPassed;
+
     // Inventory / Hotbar
     public InventorySlotData[] inventorySlots;
     public HotbarSlotData[] hotbarSlots;
