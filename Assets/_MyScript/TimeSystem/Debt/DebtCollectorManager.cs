@@ -214,6 +214,11 @@ public class DebtCollectorManager : MonoBehaviour
     void ResolveVisit(bool success)
     {
         collectorVisiting = false;
+
+        // [NEW] แจ้ง DebtPunishmentSystem ว่าจ่ายถึงขั้นต่ำหรือเปล่า
+        if (DebtPunishmentSystem.Instance != null)
+            DebtPunishmentSystem.Instance.NotifyPaymentResult(success);
+
         OnPaymentResolved?.Invoke();
     }
 

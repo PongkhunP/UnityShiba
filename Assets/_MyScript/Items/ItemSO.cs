@@ -1,14 +1,14 @@
 using UnityEngine;
 
-public enum ItemCategory { Tool, Seed, Consumable }
-// [á¡éä¢] à¾ÔèÁ Axe à¢éÒä»ã¹¹Õé
+public enum ItemCategory { Tool, Seed, Consumable, CraftingMaterial, FarmHelper }
+// [ï¿½ï¿½ï¿½] ï¿½ï¿½ï¿½ï¿½ Axe ï¿½ï¿½ï¿½ï¿½ã¹¹ï¿½ï¿½
 public enum ToolAction { None, Hoe, Water, Axe }
 
 [CreateAssetMenu(menuName = "Items/Item")]
 public class ItemSO : ScriptableObject
 {
-    // ... (â¤é´à´ÔÁ·Ñé§ËÁ´ äÁèµéÍ§Åº) ...
-    // á¤èá¡é Enum ¢éÒ§º¹¡ç¾Í¤ÃÑº
+    // ... (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Í§Åº) ...
+    // ï¿½ï¿½ï¿½ï¿½ Enum ï¿½ï¿½Ò§ï¿½ï¿½ï¿½ï¿½Í¤ï¿½Ñº
 
     [Header("Info")]
     public string itemName;
@@ -34,6 +34,10 @@ public class ItemSO : ScriptableObject
     public ItemCategory category = ItemCategory.Tool;
     public ToolAction toolAction = ToolAction.None;
     public CropSO seedCrop;
+
+    [Header("Crafting")]
+    [Tooltip("à¸–à¹‰à¸²à¹€à¸›à¹‡à¸™ FarmHelper â†’ à¸­à¹‰à¸²à¸‡à¸–à¸¶à¸‡ FarmHelperSO")]
+    public FarmHelperSO farmHelperData;
 
     [Header("Sell")]
     public bool sellable = true;

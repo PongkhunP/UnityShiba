@@ -60,4 +60,25 @@ public class SaveData
 
     // Farming (Soil + Crops)
     public SoilTileData[] soilTiles;
+
+    // Crafting & Farm Helpers
+    public FarmHelperData[] farmHelpers;
+    public string[] learnedRecipes;
+    public int consecutiveMisses;
+
+    // Market / Economy
+    public MarketItemData[] marketPrices;
+    public int daysSinceRestock;
+}
+
+[Serializable]
+public class FarmHelperData
+{
+    public string helperName;
+    public float posX;
+    public float posY;
+    public float posZ;
+    public float rotY;
+    public int daysUsed;
+    public string uniqueId;
 }
