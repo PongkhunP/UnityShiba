@@ -77,13 +77,13 @@ public class CraftingUI : MonoBehaviour
 
         if (craftingPanel) craftingPanel.SetActive(true);
 
-        // Freeze player (เหมือน Inventory)
-        if (InventoryUI.Instance != null && !InventoryUI.IsOpen)
-        {
-            // ใช้ Cursor unlock เหมือน InventoryUI
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-        }
+        // *** FIX: Unlock cursor เสมอเมื่อเปิด CraftingPanel ***
+        // ไม่ใส่เงื่อนไข เพราะถ้า cursor ยัง Lock อยู่จะคลิกอะไรไม่ได้เลย
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
+        // หยุดเวลา (optional — comment ออกถ้าไม่ต้องการ)
+        // Time.timeScale = 0f;
 
         RefreshRecipeList();
         ClearDetail();
@@ -97,12 +97,15 @@ public class CraftingUI : MonoBehaviour
 
         if (craftingPanel) craftingPanel.SetActive(false);
 
-        // Restore cursor
-        if (!InventoryUI.IsOpen)
+        // Restore cursor — คืนค่าเฉพาะเมื่อไม่มี UI อื่นเปิดอยู่
+        bool anyUIOpen = (InventoryUI.Instance != null && InventoryUI.IsOpen);
+        if (!anyUIOpen)
         {
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
         }
+
+        // Time.timeScale = 1f;
     }
 
     public void Toggle()
