@@ -2,6 +2,15 @@ using UnityEngine;
 
 public class TileCursor : MonoBehaviour
 {
+    // Singleton โ€” เนเธซเน Script เธญเธทเนเธเน€เธเนเธฒเธ–เธถเธเธ•เธณเนเธซเธเนเธ Cursor เนเธ”เน
+    public static TileCursor Instance { get; private set; }
+
+    /// <summary>เธ•เธณเนเธซเธเนเธเนเธฅเธเธ—เธตเน Cursor เธเธตเนเธญเธขเธนเน (เธซเธฅเธฑเธ Grid Snap)</summary>
+    public Vector3 WorldPosition => cursorVisual ? cursorVisual.transform.position : Vector3.zero;
+
+    /// <summary>Cursor เธเธณเธฅเธฑเธเนเธชเธ”เธเธญเธขเธนเนเนเธซเธก (เธกเธตเน€เธเนเธฒเธซเธกเธฒเธขเนเธเธฃเธฑเธจเธกเธต)</summary>
+    public bool IsActive => cursorVisual != null && cursorVisual.activeSelf;
+
     [Header("References")]
     public Camera cam;
     public Transform player;
@@ -10,20 +19,25 @@ public class TileCursor : MonoBehaviour
     [Header("Layer Settings")]
     public LayerMask soilMask;
     public LayerMask treeMask;
-    [Tooltip("ใส่ Layer ของพื้นดินปกติ (เช่น Default หรือ Terrain)")]
-    public LayerMask groundMask; // [เพิ่มใหม่] เลเยอร์พื้นดินปกติ
+    [Tooltip("๏ฟฝ๏ฟฝ๏ฟฝ Layer ๏ฟฝอง๏ฟฝ๏ฟฝ้นดิน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ (๏ฟฝ๏ฟฝ Default ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ Terrain)")]
+    public LayerMask groundMask; // [๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ] ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ้นดิน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ
 
     [Header("Cursor Settings")]
     public float interactRange = 4f;
     public Vector3 visualOffset = new Vector3(0, 0.05f, 0);
 
-    [Header("Grid Snapping (แบบที่ 2)")]
+    [Header("Grid Snapping (แบบ๏ฟฝ๏ฟฝ๏ฟฝ 2)")]
     public bool snapToGrid = true;
-    [Tooltip("ขนาดของช่องกริด (ปกติแปลงดินน่าจะ 1x1 เมตร)")]
+    [Tooltip("๏ฟฝ๏ฟฝาด๏ฟฝอง๏ฟฝ๏ฟฝอง๏ฟฝ๏ฟฝิด (๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝลง๏ฟฝิน๏ฟฝ๏ฟฝาจ๏ฟฝ 1x1 ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ)")]
     public float gridSize = 1f;
 
     [Header("Debug")]
     public bool showDebugRay = true;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     private void Start()
     {
@@ -49,7 +63,7 @@ public class TileCursor : MonoBehaviour
 
         if (showDebugRay) Debug.DrawRay(ray.origin, ray.direction * 100f, Color.red);
 
-        // 1. เช็คเป้าหมายที่เป็น "ต้นไม้" ก่อน
+        // 1. ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝยท๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ "๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ" ๏ฟฝ๏ฟฝอน
         if (Physics.Raycast(ray, out hit, 100f, treeMask))
         {
             if (Vector3.Distance(FlatPos(player.position), FlatPos(hit.point)) <= interactRange)
@@ -59,7 +73,7 @@ public class TileCursor : MonoBehaviour
             }
         }
 
-        // 2. ถ้าไม่เจอต้นไม้ ให้เช็คเป้าหมายที่เป็น "แปลงดิน (SoilTile)" ที่สับจอบไว้แล้ว
+        // 2. ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝอต๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝยท๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ "๏ฟฝลง๏ฟฝิน (SoilTile)" ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝับ๏ฟฝอบ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ
         if (!foundTarget && Physics.Raycast(ray, out hit, 100f, soilMask))
         {
             SoilTile tile = hit.collider.GetComponentInParent<SoilTile>();
@@ -73,19 +87,19 @@ public class TileCursor : MonoBehaviour
             }
         }
 
-        // 3. [ใหม่ล่าสุด!] ถ้าไม่เจออะไรเลย ให้หา "พื้นดินปกติ" เพื่อโชว์กรอบเตรียมสับจอบ
+        // 3. [๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝุด!] ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ "๏ฟฝ๏ฟฝ้นดิน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ" ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝอบ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝับ๏ฟฝอบ
         if (!foundTarget && Physics.Raycast(ray, out hit, 100f, groundMask))
         {
             if (Vector3.Distance(FlatPos(player.position), FlatPos(hit.point)) <= interactRange)
             {
                 foundTarget = true;
 
-                // ล็อคพิกัดให้เป็นช่องตาราง (Grid Snapping)
+                // ๏ฟฝ๏ฟฝอค๏ฟฝิกัด๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ็นช๏ฟฝอง๏ฟฝ๏ฟฝ๏ฟฝาง (Grid Snapping)
                 if (snapToGrid)
                 {
                     float snapX = Mathf.Round(hit.point.x / gridSize) * gridSize;
                     float snapZ = Mathf.Round(hit.point.z / gridSize) * gridSize;
-                    // ให้ความสูง (Y) แนบไปกับพื้นผิวที่เลเซอร์ยิงชน
+                    // ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝูง (Y) แนบไปกับ๏ฟฝ๏ฟฝ้นผ๏ฟฝวท๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝิง๏ฟฝ๏ฟฝ
                     targetPos = new Vector3(snapX, hit.point.y, snapZ) + visualOffset;
                 }
                 else
@@ -95,7 +109,7 @@ public class TileCursor : MonoBehaviour
             }
         }
 
-        // 4. แสดงผลกรอบสีเขียว
+        // 4. ๏ฟฝสด๏ฟฝ๏ฟฝลก๏ฟฝอบ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ
         if (foundTarget)
         {
             cursorVisual.SetActive(true);

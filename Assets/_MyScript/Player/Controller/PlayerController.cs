@@ -97,7 +97,14 @@ public class PlayerController : MonoBehaviour
             var item = HotbarUI.Instance.GetSelectedItem();
             if (!item) return;
 
-            // 1. ����繢�ҹ -> �ҵ����
+            // *** FarmHelper — วางตัวช่วยในฟาร์ม ***
+            if (item.category == ItemCategory.FarmHelper)
+            {
+                TryPlaceFarmHelper(item);
+                return;
+            }
+
+            // 1. ถ้าเป็นขวาน -> ตัดต้นไม้
             if (item.category == ItemCategory.Tool && item.toolAction == ToolAction.Axe)
             {
                 if (farmingSystem.TryGetTargetTree(out var tree))
@@ -113,7 +120,7 @@ public class PlayerController : MonoBehaviour
                 return;
             }
 
-            // 2. ��������ҧ��� -> �ҴԹ
+            // 2. ถ้าไม่ใช่ขวาน -> หาดิน
             if (farmingSystem.TryGetTargetSoil(out var tile))
             {
                 _cachedItem = item;
@@ -143,6 +150,58 @@ public class PlayerController : MonoBehaviour
                     FaceTo(tile.transform.position); StartActionTrigger("Harvest");
                 }
             }
+        }
+    }
+
+    // ================================================================
+    // FarmHelper Placement
+    // ================================================================
+
+    private void TryPlaceFarmHelper(ItemSO item)
+    {
+        // ตรวจว่ามี FarmHelperSO ใน item ไหม
+        if (item.farmHelperData == null)
+        {
+            Debug.LogWarning($"[FarmHelper] {item.itemName} ไม่มี farmHelperData!");
+            return;
+        }
+
+        // ต้องการ TileCursor และ FarmHelperManager
+        if (TileCursor.Instance == null || !TileCursor.Instance.IsActive)
+        {
+            Debug.LogWarning("[FarmHelper] TileCursor ไม่พบเป้าหมาย — เล็งไปที่พื้นในฟาร์มก่อนครับ");
+            return;
+        }
+
+        if (FarmHelperManager.Instance == null)
+        {
+            Debug.LogError("[FarmHelper] ไม่พบ FarmHelperManager!");
+            return;
+        }
+
+        // ดึงตำแหน่งจาก TileCursor (มี Grid Snap อยู่แล้ว)
+        Vector3 placePos = TileCursor.Instance.WorldPosition;
+        placePos.y -= 0.05f; // ลบ visualOffset ออก
+
+        // วาง
+        FarmHelper placed = FarmHelperManager.Instance.PlaceHelper(item.farmHelperData, placePos);
+
+        if (placed != null)
+        {
+            // หันหน้าไปทางที่วาง
+            FaceTo(placePos);
+
+            // ลบ item 1 ชิ้นออกจาก Hotbar
+            var slot = HotbarUI.Instance.GetSelectedSlot();
+            if (slot != null)
+            {
+                if (slot.amount <= 1)
+                    slot.Clear();                    // หมดแล้ว → เคลียร์ slot
+                else
+                    slot.SetStack(slot.item, slot.amount - 1); // ลดทีละ 1
+            }
+
+            Debug.Log($"[FarmHelper] วาง {item.farmHelperData.helperName} ที่ {placePos} สำเร็จ!");
         }
     }
 
