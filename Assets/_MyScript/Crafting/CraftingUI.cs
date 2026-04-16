@@ -52,11 +52,15 @@ public class CraftingUI : MonoBehaviour
     void Awake()
     {
         Instance = this;
-        if (craftingPanel) craftingPanel.SetActive(false);
+        // *** ไม่ซ่อน Panel ใน Awake เพราะ CraftingManager อาจยังไม่ได้ Awake ***
+        // ย้ายไปทำใน Start() แทน เพื่อให้ทุก Awake() รันก่อน
     }
 
     void Start()
     {
+        // ซ่อน Panel หลังจาก Awake() ทั้งหมดรันแล้ว (รวมถึง CraftingManager)
+        if (craftingPanel) craftingPanel.SetActive(false);
+
         if (craftButton) craftButton.onClick.AddListener(OnCraftPressed);
         if (closeButton) closeButton.onClick.AddListener(Close);
     }
@@ -140,7 +144,11 @@ public class CraftingUI : MonoBehaviour
             if (label) label.text = recipe.recipeName;
 
             var icon = btn.transform.Find("Icon")?.GetComponent<Image>();
-            if (icon && recipe.icon) icon.sprite = recipe.icon;
+            if (icon)
+            {
+                if (recipe.icon) icon.sprite = recipe.icon;
+                else icon.color = Color.clear; // ซ่อน Icon ถ้าไม่มี Sprite
+            }
 
             // Highlight สีตามว่าคราฟได้ไหม
             var canCraft = CraftingManager.Instance.CanCraft(recipe) == CraftResult.Success;
