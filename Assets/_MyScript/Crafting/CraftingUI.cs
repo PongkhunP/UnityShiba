@@ -40,6 +40,14 @@ public class CraftingUI : MonoBehaviour
     [Header("Feedback")]
     public TextMeshProUGUI feedbackText;
 
+    [Header("Inventory Preview (ซ้าย)")]
+    [Tooltip("Parent สำหรับ spawn slot preview (ควรเป็น GridLayoutGroup)")]
+    public Transform inventoryPreviewParent;
+    [Tooltip("Prefab slot เล็กๆ — ต้องมี Image ชื่อ 'Icon' และ TMP ชื่อ 'Amount'")]
+    public GameObject inventorySlotPreviewPrefab;
+    [Tooltip("แสดง Hotbar ด้วยหรือเปล่า (ต่อท้าย Inventory)")]
+    public bool showHotbarInPreview = true;
+
     [Header("Config")]
     public int workbenchLevel = 0;
 
@@ -47,6 +55,7 @@ public class CraftingUI : MonoBehaviour
     CraftingRecipeSO selectedRecipe;
     List<GameObject> spawnedRecipeButtons = new List<GameObject>();
     List<GameObject> spawnedIngredientRows = new List<GameObject>();
+    List<GameObject> spawnedPreviewSlots = new List<GameObject>();
     bool isOpen;
 
     void Awake()
@@ -90,6 +99,7 @@ public class CraftingUI : MonoBehaviour
         // Time.timeScale = 0f;
 
         RefreshRecipeList();
+        RefreshInventoryPreview();
         ClearDetail();
         ClearFeedback();
     }
@@ -158,6 +168,74 @@ public class CraftingUI : MonoBehaviour
             // Click → select recipe
             var captured = recipe;
             btn.GetComponent<Button>()?.onClick.AddListener(() => SelectRecipe(captured));
+        }
+    }
+
+    // ================================================================
+    // Inventory Preview
+    // ================================================================
+
+    void RefreshInventoryPreview()
+    {
+        if (inventoryPreviewParent == null || inventorySlotPreviewPrefab == null) return;
+
+        // ลบ slot เก่าออก
+        foreach (var obj in spawnedPreviewSlots) if (obj) Destroy(obj);
+        spawnedPreviewSlots.Clear();
+
+        // --- Inventory Slots ---
+        if (InventoryUI.Instance != null)
+        {
+            foreach (var slot in InventoryUI.Instance.slots)
+            {
+                SpawnPreviewSlot(slot?.item, slot?.amount ?? 0);
+            }
+        }
+
+        // --- Hotbar Slots ---
+        if (showHotbarInPreview && HotbarUI.Instance != null)
+        {
+            foreach (var slot in HotbarUI.Instance.slots)
+            {
+                if (slot == null) continue;
+                SpawnPreviewSlot(slot.item, slot.amount);
+            }
+        }
+    }
+
+    void SpawnPreviewSlot(ItemSO item, int amount)
+    {
+        var obj = Instantiate(inventorySlotPreviewPrefab, inventoryPreviewParent);
+        spawnedPreviewSlots.Add(obj);
+
+        // Icon
+        var icon = obj.transform.Find("Icon")?.GetComponent<UnityEngine.UI.Image>();
+        if (icon)
+        {
+            if (item != null && item.icon)
+            {
+                icon.sprite = item.icon;
+                icon.enabled = true;
+            }
+            else
+            {
+                icon.sprite = null;
+                icon.enabled = false;
+            }
+        }
+
+        // Amount text
+        var amountTxt = obj.transform.Find("Amount")?.GetComponent<TMPro.TextMeshProUGUI>();
+        if (amountTxt)
+        {
+            amountTxt.text = (item != null && amount > 0) ? amount.ToString() : "";
+        }
+
+        // Slot ว่าง → ทำให้ดูจางๆ
+        var bg = obj.GetComponent<UnityEngine.UI.Image>();
+        if (bg)
+        {
+            bg.color = (item != null) ? Color.white : new Color(1f, 1f, 1f, 0.3f);
         }
     }
 
@@ -255,6 +333,7 @@ public class CraftingUI : MonoBehaviour
                 ShowFeedback($"คราฟ {selectedRecipe.resultItem.itemName} สำเร็จ!", Color.green);
                 // Refresh ทั้งหมดเพื่ออัพเดท stock
                 RefreshRecipeList();
+                RefreshInventoryPreview();
                 SelectRecipe(selectedRecipe);
                 break;
             case CraftResult.NotEnoughMaterials:

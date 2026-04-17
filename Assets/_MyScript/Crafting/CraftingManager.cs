@@ -96,7 +96,7 @@ public class CraftingManager : MonoBehaviour
         {
             foreach (var slot in inventory.slots)
             {
-                if (slot.item == item)
+                if (slot != null && slot.item == item)
                     count += slot.amount;
             }
         }
@@ -125,7 +125,7 @@ public class CraftingManager : MonoBehaviour
             foreach (var slot in inventory.slots)
             {
                 if (remaining <= 0) break;
-                if (slot.item != item) continue;
+                if (slot == null || slot.item != item) continue;
 
                 int take = Mathf.Min(remaining, slot.amount);
                 slot.DecreaseAmount(take);
