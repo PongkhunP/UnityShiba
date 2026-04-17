@@ -44,7 +44,7 @@ public class ChoppableCut_Tree : MonoBehaviour
 
         if (hitVFX) hitVFX.Play();
 
-        // [á¡éä¢] à»ÅÕèÂ¹ÁÒãªé PlaySound2D á·¹ PlayClipAtPoint
+        // [ï¿½ï¿½ï¿½] ï¿½ï¿½ï¿½ï¿½Â¹ï¿½ï¿½ï¿½ï¿½ PlaySound2D á·¹ PlayClipAtPoint
         if (hitSound) PlaySound2D(hitSound);
 
         DOShake();
@@ -66,7 +66,7 @@ public class ChoppableCut_Tree : MonoBehaviour
             rb.AddForce(transform.forward * fallForce);
         }
 
-        // [á¡éä¢] à»ÅÕèÂ¹ÁÒãªé PlaySound2D á·¹ PlayClipAtPoint
+        // [ï¿½ï¿½ï¿½] ï¿½ï¿½ï¿½ï¿½Â¹ï¿½ï¿½ï¿½ï¿½ PlaySound2D á·¹ PlayClipAtPoint
         if (fallSound) PlaySound2D(fallSound);
 
         if (parentSoil != null)
@@ -101,11 +101,15 @@ public class ChoppableCut_Tree : MonoBehaviour
 
     void SpawnDrop(GameObject prefab, Vector3 center)
     {
-        Vector3 randomPos = center + Random.insideUnitSphere * 0.5f;
+        Vector3 randomPos = center + Random.insideUnitSphere * 0.4f;
         GameObject drop = Instantiate(prefab, randomPos, Quaternion.identity);
 
         Rigidbody r = drop.GetComponent<Rigidbody>();
-        if (r) r.AddExplosionForce(300f, transform.position, 3f);
+        if (r)
+        {
+            // à¹à¸£à¸‡à¸™à¹‰à¸­à¸¢à¸¥à¸‡ + radius à¸à¸§à¹‰à¸²à¸‡à¸‚à¸¶à¹‰à¸™ = à¸à¸£à¸°à¸ˆà¸²à¸¢à¹€à¸¥à¹‡à¸à¸™à¹‰à¸­à¸¢ à¹„à¸¡à¹ˆà¸à¸£à¸°à¹€à¸”à¹‡à¸™à¸­à¸­à¸à¹„à¸›à¹„à¸à¸¥
+            r.AddExplosionForce(60f, transform.position, 2f);
+        }
     }
 
     private void DOShake() { StartCoroutine(ShakeRoutine()); }
@@ -124,7 +128,7 @@ public class ChoppableCut_Tree : MonoBehaviour
         transform.rotation = originalRot;
     }
 
-    // [à¾ÔèÁãËÁè] ¿Ñ§¡ìªÑ¹ÊÃéÒ§àÊÕÂ§áºº 2D (´Ñ§ªÑ´à¨¹)
+    // [ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½] ï¿½Ñ§ï¿½ï¿½Ñ¹ï¿½ï¿½ï¿½Ò§ï¿½ï¿½ï¿½Â§áºº 2D (ï¿½Ñ§ï¿½Ñ´à¨¹)
     void PlaySound2D(AudioClip clip)
     {
         GameObject go = new GameObject("TreeSFX");
@@ -133,7 +137,7 @@ public class ChoppableCut_Tree : MonoBehaviour
         AudioSource src = go.AddComponent<AudioSource>();
         src.clip = clip;
         src.volume = 1f;
-        src.spatialBlend = 0f; // <--- 0 ¤×Í 2D (ä´éÂÔ¹àµçÁËÙ), 1 ¤×Í 3D (ä´éÂÔ¹µÒÁÃĞÂĞ·Ò§)
+        src.spatialBlend = 0f; // <--- 0 ï¿½ï¿½ï¿½ 2D (ï¿½ï¿½ï¿½Ô¹ï¿½ï¿½ï¿½ï¿½ï¿½), 1 ï¿½ï¿½ï¿½ 3D (ï¿½ï¿½ï¿½Ô¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ·Ò§)
 
         src.Play();
         Destroy(go, clip.length + 0.1f);

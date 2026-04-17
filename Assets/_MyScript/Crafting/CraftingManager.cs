@@ -33,7 +33,12 @@ public class CraftingManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        if (Instance != null && Instance != this)
+        {
+            Debug.LogWarning($"[CraftingManager] พบ Instance ซ้ำบน '{gameObject.name}' — ลบ Component นี้ออก");
+            Destroy(this);   // ลบแค่ Component ไม่ทำลาย GameObject ทั้งก้อน
+            return;
+        }
         Instance = this;
 
         if (!inventory) inventory = InventoryUI.Instance;
@@ -83,34 +88,73 @@ public class CraftingManager : MonoBehaviour
     public int CountItem(ItemSO item)
     {
         if (inventory == null) inventory = InventoryUI.Instance;
-        if (inventory == null) return 0;
 
         int count = 0;
-        foreach (var slot in inventory.slots)
+
+        // นับจาก Inventory
+        if (inventory != null)
         {
-            if (slot.item == item)
-                count += slot.amount;
+            foreach (var slot in inventory.slots)
+            {
+                if (slot.item == item)
+                    count += slot.amount;
+            }
         }
+
+        // นับจาก Hotbar
+        if (HotbarUI.Instance != null)
+        {
+            foreach (var slot in HotbarUI.Instance.slots)
+            {
+                if (slot != null && slot.item == item)
+                    count += slot.amount;
+            }
+        }
+
         return count;
     }
 
-    /// <summary>ลบไอเท็มจาก Inventory จำนวน amount</summary>
+    /// <summary>ลบไอเท็มจาก Inventory + Hotbar จำนวน amount (ลบ Inventory ก่อน)</summary>
     bool ConsumeItem(ItemSO item, int amount)
     {
-        if (inventory == null) return false;
-
         int remaining = amount;
-        foreach (var slot in inventory.slots)
+
+        // ลบจาก Inventory ก่อน
+        if (inventory != null)
         {
-            if (remaining <= 0) break;
-            if (slot.item != item) continue;
+            foreach (var slot in inventory.slots)
+            {
+                if (remaining <= 0) break;
+                if (slot.item != item) continue;
 
-            int take = Mathf.Min(remaining, slot.amount);
-            slot.DecreaseAmount(take);
-            remaining -= take;
+                int take = Mathf.Min(remaining, slot.amount);
+                slot.DecreaseAmount(take);
+                remaining -= take;
 
-            if (slot.amount <= 0) slot.Clear();
+                if (slot.amount <= 0) slot.Clear();
+            }
         }
+        // ถ้ายังไม่พอ → ลบจาก Hotbar ต่อ
+        if (remaining > 0 && HotbarUI.Instance != null)
+        {
+            foreach (var slot in HotbarUI.Instance.slots)
+            {
+                if (remaining <= 0) break;
+                if (slot == null || slot.item != item) continue;
+
+                int take = Mathf.Min(remaining, slot.amount);
+
+                // --- แก้ไขตรงนี้ครับ ---
+                slot.amount -= take;  // สั่งหักลบตัวเลขตรงๆ
+                slot.UpdateUI();      // สั่งให้อัปเดตภาพ UI
+                // ---------------------
+
+                remaining -= take;
+
+                if (slot.amount <= 0) slot.Clear();
+            }
+        }
+
         return remaining <= 0;
     }
 

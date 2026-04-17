@@ -46,7 +46,7 @@ public class MarketPriceSystem : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        if (Instance != null && Instance != this) { Debug.LogWarning($"[MarketPriceSystem] พบ Instance ซ้ำบน '{gameObject.name}' — ลบ Component"); Destroy(this); return; }
         Instance = this;
     }
 

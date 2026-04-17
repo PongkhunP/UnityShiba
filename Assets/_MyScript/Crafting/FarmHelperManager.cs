@@ -42,7 +42,12 @@ public class FarmHelperManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        if (Instance != null && Instance != this)
+        {
+            Debug.LogWarning($"[FarmHelperManager] พบ Instance ซ้ำบน '{gameObject.name}' — ลบ Component นี้ออก");
+            Destroy(this);   // ลบแค่ Component ไม่ทำลาย GameObject ทั้งก้อน
+            return;
+        }
         Instance = this;
     }
 

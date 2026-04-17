@@ -9,25 +9,25 @@ public class DialogueManager : MonoBehaviour
     public static DialogueManager Instance { get; private set; }
 
     [Header("UI Components")]
-    public GameObject dialoguePanel;      // ตัวกล่องข้อความทั้งหมด (Panel)
-    public Image portraitImage;           // รูป NPC ด้านซ้าย
-    public TextMeshProUGUI nameText;      // ชื่อ NPC
-    public TextMeshProUGUI dialogueText;  // ข้อความพูด
+    public GameObject dialoguePanel;      // ๏ฟฝ๏ฟฝวก๏ฟฝ๏ฟฝอง๏ฟฝ๏ฟฝอค๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ (Panel)
+    public Image portraitImage;           // ๏ฟฝูป NPC ๏ฟฝ๏ฟฝาน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ
+    public TextMeshProUGUI nameText;      // ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ NPC
+    public TextMeshProUGUI dialogueText;  // ๏ฟฝ๏ฟฝอค๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝูด
 
     [Header("Settings")]
-    public float typeSpeed = 0.02f;       // ความเร็วตัวหนังสือวิ่ง
+    public float typeSpeed = 0.02f;       // ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝวต๏ฟฝ๏ฟฝหนัง๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ
 
     private Queue<DialogueLine> sentences;
     private bool isTyping = false;
     private string currentFullText = "";
 
-    // เอาไว้บอกคนอื่นว่าคุยอยู่ (Player จะได้ขยับไม่ได้)
+    // ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝอก๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝาค๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ (Player ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝับ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ)
     public bool IsDialogueActive { get; private set; }
 
     private void Awake()
     {
-        if (Instance != null && Instance != this) Destroy(gameObject);
-        else Instance = this;
+        if (Instance != null && Instance != this) { Debug.LogWarning($"[DialogueManager] เธเธ Instance เธเนเธณเธเธ '{gameObject.name}' โ€” เธฅเธ Component"); Destroy(this); return; }
+        Instance = this;
 
         sentences = new Queue<DialogueLine>();
         if (dialoguePanel) dialoguePanel.SetActive(false);
@@ -38,10 +38,10 @@ public class DialogueManager : MonoBehaviour
         IsDialogueActive = true;
         if (dialoguePanel) dialoguePanel.SetActive(true);
 
-        // ตั้งชื่อ NPC
+        // ๏ฟฝ๏ฟฝ้งช๏ฟฝ๏ฟฝ๏ฟฝ NPC
         if (nameText) nameText.text = dialogue.npcName;
 
-        // เคลียร์ประโยคเก่า แล้วใส่ประโยคใหม่เข้าไป
+        // ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝยค๏ฟฝ๏ฟฝ๏ฟฝ ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝยค๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ
         sentences.Clear();
         foreach (var line in dialogue.lines)
         {
@@ -53,7 +53,7 @@ public class DialogueManager : MonoBehaviour
 
     public void DisplayNextSentence()
     {
-        // ถ้ากำลังพิมพ์อยู่ ให้กดข้ามไปแสดงผลให้จบทันที
+        // ๏ฟฝ๏ฟฝาก๏ฟฝ๏ฟฝัง๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ ๏ฟฝ๏ฟฝ้กด๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝสด๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ้จบ๏ฟฝัน๏ฟฝ๏ฟฝ
         if (isTyping)
         {
             StopAllCoroutines();
@@ -62,7 +62,7 @@ public class DialogueManager : MonoBehaviour
             return;
         }
 
-        // ถ้าประโยคหมดแล้ว ให้จบการสนทนา
+        // ๏ฟฝ๏ฟฝาป๏ฟฝ๏ฟฝ๏ฟฝยค๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ ๏ฟฝ๏ฟฝ้จบ๏ฟฝ๏ฟฝ๏ฟฝสน๏ฟฝ๏ฟฝ๏ฟฝ
         if (sentences.Count == 0)
         {
             EndDialogue();
@@ -71,7 +71,7 @@ public class DialogueManager : MonoBehaviour
 
         DialogueLine line = sentences.Dequeue();
 
-        // 1. เปลี่ยนรูป Portrait
+        // 1. ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝยน๏ฟฝูป Portrait
         if (portraitImage != null)
         {
             if (line.portrait != null)
@@ -79,11 +79,11 @@ public class DialogueManager : MonoBehaviour
                 portraitImage.sprite = line.portrait;
                 portraitImage.gameObject.SetActive(true);
             }
-            // ถ้าไม่มีรูปในประโยคนี้ จะให้ซ่อน หรือใช้รูปเดิมก็ได้ (ในที่นี้เลือกใช้รูปเดิมถ้าไม่ได้ใส่)
+            // ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝูปในป๏ฟฝ๏ฟฝ๏ฟฝยค๏ฟฝ๏ฟฝ๏ฟฝ ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝอน ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝูป๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ (ในท๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝอก๏ฟฝ๏ฟฝ๏ฟฝูป๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ)
             // else portraitImage.gameObject.SetActive(false); 
         }
 
-        // 2. พิมพ์ข้อความ (Typewriter Effect)
+        // 2. ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝอค๏ฟฝ๏ฟฝ๏ฟฝ (Typewriter Effect)
         currentFullText = line.text;
         StopAllCoroutines();
         StartCoroutine(TypeSentence(line.text));

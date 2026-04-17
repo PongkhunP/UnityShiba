@@ -13,11 +13,11 @@ public class CalendarSystem : MonoBehaviour
     public static CalendarSystem Instance { get; private set; }
 
     [Header("Clock / Link")]
-    [Tooltip("ลิงก์ไป TimeOfDaySystem เพื่อให้ปฏิทินเดินตามเวลาในเกม (ไม่ใส่ก็ได้)")]
+    [Tooltip("๏ฟฝิง๏ฟฝ๏ฟฝ๏ฟฝ TimeOfDaySystem ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ้ปฏิทิน๏ฟฝิน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ (๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ)")]
     public TimeOfDaySystem timeOfDay;
 
     [Header("Date Config")]
-    [Tooltip("จำนวนวันต่อเดือนแบบคงที่")]
+    [Tooltip("๏ฟฝำนวน๏ฟฝัน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝอนแบบ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ")]
     [Min(1)] public int daysPerMonth = 30;
 
     [Header("Initial Date")]
@@ -26,44 +26,44 @@ public class CalendarSystem : MonoBehaviour
     public int startDay = 1;
 
     // Runtime
-    [SerializeField, Range(0f, 1f)] private float time01; // 0..1 ของแต่ละวัน
+    [SerializeField, Range(0f, 1f)] private float time01; // 0..1 ๏ฟฝอง๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝัน
     [SerializeField] private int year, month, day;
 
     public Date date => new Date(year, month, day);
     public float Time01 => time01;
 
     // Events
-    public event Action<Date> OnDateChanged;  // ยิงทุกครั้งที่ SetDate/SetTime01
-    public event Action<Date> OnDayEnded;     // ยิงเมื่อวันจบ (เที่ยงคืน/ข้ามวัน)
+    public event Action<Date> OnDateChanged;  // ๏ฟฝิง๏ฟฝุก๏ฟฝ๏ฟฝ๏ฟฝ้งท๏ฟฝ๏ฟฝ SetDate/SetTime01
+    public event Action<Date> OnDayEnded;     // ๏ฟฝิง๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝัน๏ฟฝ๏ฟฝ (๏ฟฝ๏ฟฝ๏ฟฝยง๏ฟฝืน/๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝัน)
 
     float lastTod01 = -1f;
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        if (Instance != null && Instance != this) { Debug.LogWarning($"[CalendarSystem] เธเธ Instance เธเนเธณเธเธ '{gameObject.name}' โ€” เธฅเธ Component"); Destroy(this); return; }
         Instance = this;
 
         year = Mathf.Max(1, startYear);
         month = Mathf.Clamp(startMonth, 1, 12);
         day = Mathf.Clamp(startDay, 1, daysPerMonth);
-        time01 = 0f; // เริ่ม 00:00 (ให้ TimeOfDaySystem เป็นคนกำหนดเวลาเริ่ม)
+        time01 = 0f; // ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ 00:00 (๏ฟฝ๏ฟฝ๏ฟฝ TimeOfDaySystem ๏ฟฝ็นค๏ฟฝ๏ฟฝ๏ฟฝหน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ)
     }
 
     void Update()
     {
-        // ถ้ามี TOD ให้ sync และตรวจจับ cross-midnight
+        // ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ TOD ๏ฟฝ๏ฟฝ๏ฟฝ sync ๏ฟฝ๏ฟฝะต๏ฟฝวจ๏ฟฝับ cross-midnight
         if (timeOfDay != null)
         {
             TickFromTOD(timeOfDay.Time01);
         }
     }
 
-    /// <summary>เรียกทุกเฟรมเมื่อมี TOD: ตรวจจับวันใหม่และ sync time01</summary>
+    /// <summary>๏ฟฝ๏ฟฝ๏ฟฝยก๏ฟฝุก๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ TOD: ๏ฟฝ๏ฟฝวจ๏ฟฝับ๏ฟฝัน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ sync time01</summary>
     public void TickFromTOD(float tod01)
     {
         if (lastTod01 < 0f) lastTod01 = tod01;
 
-        // ตรวจจับ wrap: ตัวก่อน > ตัวใหม่ => ข้ามวัน
+        // ๏ฟฝ๏ฟฝวจ๏ฟฝับ wrap: ๏ฟฝ๏ฟฝวก๏ฟฝอน > ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ => ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝัน
         bool crossedMidnight = lastTod01 > tod01;
         lastTod01 = tod01;
 
@@ -73,12 +73,12 @@ public class CalendarSystem : MonoBehaviour
         {
             NextDay();
             OnDayEnded?.Invoke(date);
-            // ยิง OnDateChanged อีกรอบหลังจบวัน
+            // ๏ฟฝิง OnDateChanged ๏ฟฝีก๏ฟฝอบ๏ฟฝ๏ฟฝัง๏ฟฝ๏ฟฝ๏ฟฝัน
             OnDateChanged?.Invoke(date);
         }
         else
         {
-            // ระหว่างวัน ถ้าคุณอยากอัปเดต UI เวลา ให้ยิงเฉพาะเปลี่ยนเล็กๆ ได้
+            // ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝาง๏ฟฝัน ๏ฟฝ๏ฟฝาคุณ๏ฟฝ๏ฟฝาก๏ฟฝัปเดต UI ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝิงเฉพ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝยน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ ๏ฟฝ๏ฟฝ
             OnDateChanged?.Invoke(date);
         }
     }
@@ -98,7 +98,7 @@ public class CalendarSystem : MonoBehaviour
     }
     
 
-    /// <summary>เลื่อนไปวันถัดไป (public เพื่อให้ระบบอื่นเรียกได้)</summary>
+    /// <summary>๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝอน๏ฟฝ๏ฟฝัน๏ฟฝัด๏ฟฝ (public ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝะบ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝยก๏ฟฝ๏ฟฝ)</summary>
     public void NextDay()
     {
         day++;
@@ -112,7 +112,7 @@ public class CalendarSystem : MonoBehaviour
 
     public bool IsLastDayOfMonth(int d) => d >= daysPerMonth;
 
-    /// <summary>ข้ามวันจนกว่า Date จะเท่ากับเป้าหมาย (ใช้ตอนโหลดเก็บ state จากไฟล์)</summary>
+    /// <summary>๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝัน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ Date ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝากับ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ (๏ฟฝ๏ฟฝอน๏ฟฝ๏ฟฝลด๏ฟฝ๏ฟฝ state ๏ฟฝาก๏ฟฝ๏ฟฝ๏ฟฝ)</summary>
     public void FastForwardTo(Date target)
     {
         year = target.year;

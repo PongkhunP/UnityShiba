@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 /// <summary>
@@ -5,6 +6,10 @@ using UnityEngine;
 /// - มี ItemSO + จำนวน
 /// - ลอยขึ้นลง (Floating animation)
 /// - เล่น VFX + SFX ตอนเก็บ
+///
+/// [Fix] ถ้ามี Rigidbody → รอให้ physics หยุดก่อน (floatDelay วินาที)
+/// แล้วค่อยทำ Kinematic + เริ่ม floating animation
+/// ป้องกัน Log ลอยหนีไปเรื่อยๆ จาก velocity ที่ค้างอยู่
 /// </summary>
 public class Pickupable : MonoBehaviour
 {
@@ -18,6 +23,8 @@ public class Pickupable : MonoBehaviour
     public float floatAmplitude = 0.15f;   // ความสูงที่ลอยขึ้นลง
     public float floatSpeed     = 2f;       // ความเร็วการลอย
     public float rotateSpeed    = 90f;      // หมุนกี่องศาต่อวินาที (0 = ไม่หมุน)
+    [Tooltip("รอกี่วินาทีก่อนเริ่ม Float (ให้ physics ตกพื้นก่อน)")]
+    public float floatDelay     = 1.2f;
 
     [Header("VFX / SFX")]
     [Tooltip("Particle ที่เล่นตอนเก็บ — ถ้าว่างจะข้าม")]
@@ -30,16 +37,65 @@ public class Pickupable : MonoBehaviour
     // Runtime
     Vector3 _startPos;
     float   _floatTimer;
+    bool    _floatReady = false;   // true = physics หยุดแล้ว เริ่ม float ได้
 
     void Start()
     {
-        _startPos    = transform.position;
-        _floatTimer  = Random.Range(0f, Mathf.PI * 2f); // offset ให้แต่ละ item ไม่ลอยพร้อมกัน
+        _floatTimer = Random.Range(0f, Mathf.PI * 2f);
+
+        var rb = GetComponent<Rigidbody>();
+
+        if (rb != null && enableFloat)
+        {
+            // มี Rigidbody → รอให้กระเด็นหยุดก่อน แล้วค่อย Kinematic + float
+            _floatReady = false;
+            StartCoroutine(WaitThenFloat(rb));
+        }
+        else
+        {
+            // ไม่มี Rigidbody → เริ่ม float ทันที
+            _startPos   = transform.position;
+            _floatReady = true;
+        }
+    }
+
+    IEnumerator WaitThenFloat(Rigidbody rb)
+    {
+        // รอขั้นต่ำก่อนเริ่มตรวจ (ให้ explosion force ออกแรงก่อน)
+        yield return new WaitForSeconds(0.3f);
+
+        // รอจนกว่า Log หยุดนิ่งจริงๆ (velocity ≈ 0)
+        // มี timeout 6 วินาทีป้องกันค้างไว้
+        float timeout = 6f;
+        float elapsed = 0f;
+
+        while (elapsed < timeout)
+        {
+            if (rb == null) yield break;
+
+            bool velocityStopped = rb.velocity.magnitude < 0.05f
+                                && rb.angularVelocity.magnitude < 0.05f;
+            if (velocityStopped) break;
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        if (rb == null) yield break;
+
+        // หยุด velocity ทั้งหมด แล้วเปลี่ยนเป็น Kinematic
+        rb.velocity        = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.isKinematic     = true;
+
+        // จำตำแหน่งที่ตกพื้นจริง (ไม่ใช่ตำแหน่งตอน spawn)
+        _startPos   = transform.position;
+        _floatReady = true;
     }
 
     void Update()
     {
-        if (!enableFloat) return;
+        if (!enableFloat || !_floatReady) return;
 
         // ลอยขึ้นลง
         _floatTimer += Time.deltaTime * floatSpeed;
@@ -54,11 +110,9 @@ public class Pickupable : MonoBehaviour
     /// <summary>เรียกจาก PlayerPickup ก่อน Destroy เพื่อเล่น VFX/SFX</summary>
     public void PlayPickupEffects()
     {
-        // VFX
         if (pickupVFX != null)
             Instantiate(pickupVFX, transform.position, Quaternion.identity);
 
-        // SFX
         if (pickupSFX != null)
             AudioSource.PlayClipAtPoint(pickupSFX, transform.position, sfxVolume);
     }

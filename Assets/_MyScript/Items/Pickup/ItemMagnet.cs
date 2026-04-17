@@ -3,10 +3,10 @@ using UnityEngine;
 public class ItemMagnet : MonoBehaviour
 {
     [Header("Settings")]
-    public float delayBeforeMagnet = 0.5f; // รอแป๊บนึงค่อยดูด (ให้มันกระจายก่อน)
+    public float delayBeforeMagnet = 0.5f; // ๏ฟฝ๏ฟฝ๏ฟฝ๊บนึง๏ฟฝ๏ฟฝ๏ฟฝยดูด (๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝัน๏ฟฝ๏ฟฝะจ๏ฟฝยก๏ฟฝอน)
     public float magnetSpeed = 10f;
-    public float pickupRadius = 1f; // ระยะที่จะถือว่าเก็บได้
-    public ItemSO itemToGive;       // ไอเทมที่จะเข้ากระเป๋า
+    public float pickupRadius = 1f; // ๏ฟฝ๏ฟฝ๏ฟฝะท๏ฟฝ๏ฟฝะถ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ
+    public ItemSO itemToGive;       // ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝาก๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ
     public int amount = 1;
 
     private Transform player;
@@ -24,35 +24,40 @@ public class ItemMagnet : MonoBehaviour
     {
         if (!player) return;
 
-        // รอเวลาดีเลย์ก่อนค่อยเริ่มดูด
+        // ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝาด๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝอน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝูด
         if (Time.time < spawnTime + delayBeforeMagnet) return;
 
-        // คำนวณระยะห่าง
+        // ๏ฟฝำนวณ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝาง
         float dist = Vector3.Distance(transform.position, player.position);
 
-        // ถ้าอยู่ใกล้มาก -> เก็บของเข้าตัว
+        // ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝาก -> ๏ฟฝ็บของ๏ฟฝ๏ฟฝาต๏ฟฝ๏ฟฝ
         if (dist <= pickupRadius)
         {
             Collect();
             return;
         }
 
-        // เคลื่อนที่เข้าหาผู้เล่น
+        // ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝอน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝาผ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ
         transform.position = Vector3.MoveTowards(transform.position, player.position + Vector3.up, magnetSpeed * Time.deltaTime);
     }
 
     void Collect()
     {
-        if (InventoryUI.Instance)
+        int remaining = amount;
+
+        // 1) เธฅเธญเธ Hotbar เธเนเธญเธ (เธญเธขเธนเนเนเธเธฅเนเธกเธทเธญ เธชเธฐเธ”เธงเธเธเธงเนเธฒ)
+        if (remaining > 0 && HotbarUI.Instance != null)
         {
-            InventoryUI.Instance.AddItemToInventory(itemToGive, amount);
-        }
-        else if (HotbarUI.Instance)
-        {
-            HotbarUI.Instance.AddItemToFirstEmptySlot(itemToGive, amount);
+            bool added = HotbarUI.Instance.AddItemToFirstEmptySlot(itemToGive, remaining);
+            if (added) remaining = 0;
         }
 
-        // เล่นเสียงเก็บของ (ถ้ามี) แล้วทำลาย object ทิ้ง
+        // 2) เธ—เธตเนเน€เธซเธฅเธทเธญเนเธชเน Inventory
+        if (remaining > 0 && InventoryUI.Instance != null)
+        {
+            InventoryUI.Instance.AddItemToInventory(itemToGive, remaining);
+        }
+
         Destroy(gameObject);
     }
 }

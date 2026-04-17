@@ -42,7 +42,8 @@ public class GameManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject);
+            Debug.LogWarning($"[GameManager] พบ Instance ซ้ำบน '{gameObject.name}' — ลบ Component นี้ออก");
+            Destroy(this);
             return;
         }
         Instance = this;
@@ -144,6 +145,22 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < tiles.Length; i++)
             data.soilTiles[i] = tiles[i].GetSaveData();
 
+        // FarmHelpers
+        if (FarmHelperManager.Instance != null)
+            data.farmHelpers = FarmHelperManager.Instance.GetSaveData();
+
+        // Crafting — สูตรที่เรียนรู้แล้ว
+        if (CraftingManager.Instance != null)
+            data.learnedRecipes = CraftingManager.Instance.GetLearnedRecipes();
+
+        // Debt Punishment — consecutive misses
+        if (DebtPunishmentSystem.Instance != null)
+            data.consecutiveMisses = DebtPunishmentSystem.Instance.GetConsecutiveMisses();
+
+        // Market Prices
+        if (MarketPriceSystem.Instance != null)
+            data.marketPrices = MarketPriceSystem.Instance.GetSaveData();
+
         SaveSystem.Save(data);
         Debug.Log("[GameManager] Saved game with farm data.");
     }
@@ -224,6 +241,31 @@ public class GameManager : MonoBehaviour
             for (int i = 0; i < count; i++)
                 tiles[i].ApplySaveData(data.soilTiles[i], allCrops);
         }
+
+        // FarmHelpers — รวบรวม FarmHelperSO จาก ItemDatabase
+        if (FarmHelperManager.Instance != null && data.farmHelpers != null)
+        {
+            var allHelperSOs = new System.Collections.Generic.List<FarmHelperSO>();
+            if (itemDatabase != null)
+            {
+                foreach (var item in itemDatabase.items)
+                    if (item != null && item.farmHelperData != null)
+                        allHelperSOs.Add(item.farmHelperData);
+            }
+            FarmHelperManager.Instance.ApplySaveData(data.farmHelpers, allHelperSOs.ToArray());
+        }
+
+        // Crafting — โหลดสูตรที่เรียนรู้แล้ว
+        if (CraftingManager.Instance != null && data.learnedRecipes != null)
+            CraftingManager.Instance.SetLearnedRecipes(data.learnedRecipes);
+
+        // Debt Punishment — โหลด consecutive misses
+        if (DebtPunishmentSystem.Instance != null)
+            DebtPunishmentSystem.Instance.SetConsecutiveMisses(data.consecutiveMisses);
+
+        // Market Prices
+        if (MarketPriceSystem.Instance != null && data.marketPrices != null)
+            MarketPriceSystem.Instance.ApplySaveData(data.marketPrices);
 
         Debug.Log("[GameManager] Farm loaded");
     }

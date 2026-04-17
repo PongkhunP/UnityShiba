@@ -72,7 +72,7 @@ public class DebtPunishmentSystem : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        if (Instance != null && Instance != this) { Debug.LogWarning($"[DebtPunishmentSystem] พบ Instance ซ้ำบน '{gameObject.name}' — ลบ Component"); Destroy(this); return; }
         Instance = this;
     }
 

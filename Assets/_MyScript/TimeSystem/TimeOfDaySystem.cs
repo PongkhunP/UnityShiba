@@ -72,7 +72,7 @@ public class TimeOfDaySystem : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        if (Instance != null && Instance != this) { Debug.LogWarning($"[TimeOfDaySystem] พบ Instance ซ้ำบน '{gameObject.name}' — ลบ Component"); Destroy(this); return; }
         Instance = this;
         time01 = ((startHour % 24) + startMinute / 60f) / 24f;
         currentPhase = GetPhase(time01);

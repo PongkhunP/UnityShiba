@@ -4,14 +4,15 @@ public class ItemDatabase : MonoBehaviour
 {
     public static ItemDatabase Instance { get; private set; }
 
-    [Tooltip("ÅÒ¡ ItemSO ·Ñé§ËÁ´ÁÒãÊè")]
+    [Tooltip("ï¿½Ò¡ ItemSO ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
     public ItemSO[] items;
 
     private void Awake()
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject);
+            Debug.LogWarning($"[ItemDatabase] à¸à¸š Instance à¸‹à¹‰à¸³à¸šà¸™ '{gameObject.name}' â€” à¸¥à¸š Component à¸™à¸µà¹‰à¸­à¸­à¸");
+            Destroy(this);
             return;
         }
         Instance = this;
