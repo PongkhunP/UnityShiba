@@ -5,8 +5,8 @@ using TMPro;
 public class HotbarSlot : MonoBehaviour
 {
     [Header("UI refs")]
-    public Image iconImage;              // äÍ¤Í¹º¹ªèÍ§ Hotbar
-    public TextMeshProUGUI amountText;   // µÑÇàÅ¢ (¶éÒäÁèãªé »ÅèÍÂÇèÒ§ä´é)
+    public Image iconImage;              // ï¿½Í¤Í¹ï¿½ï¿½ï¿½ï¿½Í§ Hotbar
+    public TextMeshProUGUI amountText;   // ï¿½ï¿½ï¿½ï¿½Å¢ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò§ï¿½ï¿½)
 
     [Header("Runtime")]
     public ItemSO item;
@@ -14,13 +14,19 @@ public class HotbarSlot : MonoBehaviour
 
     public bool HasStack => item != null && amount > 0;
 
-    // ---------- API áººà´ÔÁ (¤§äÇéãËéÊ¤ÃÔ»µìÍ×è¹àÃÕÂ¡ä´é) ----------
+    void Start()
+    {
+        // Refresh UI à¸•à¸­à¸™à¹€à¸£à¸´à¹ˆà¸¡à¹€à¸à¸¡à¹€à¸žà¸·à¹ˆà¸­à¹ƒà¸«à¹‰ Tool à¹à¸ªà¸”à¸‡ âˆž à¸—à¸±à¸™à¸—à¸µ
+        UpdateUI();
+    }
+
+    // ---------- API áººï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¤ï¿½Ô»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¡ï¿½ï¿½) ----------
     public void SetItem(ItemSO newItem) => SetShortcut(newItem);
     public void SetItem(ItemSO newItem, int newAmount) => SetStack(newItem, newAmount);
     // ---------------------------------------------------------------
 
-    // ---------- API á¹Ð¹Ó ----------
-    // ÇÒ§à»ç¹ "ªÍÃìµ¤Ñµ" (¶×ÍäÍ¤Í¹ÍÂèÒ§à´ÕÂÇ äÁè¶×Í¨Ó¹Ç¹)
+    // ---------- API ï¿½Ð¹ï¿½ ----------
+    // ï¿½Ò§ï¿½ï¿½ "ï¿½ï¿½ï¿½ìµ¤Ñµ" (ï¿½ï¿½ï¿½ï¿½Í¤Í¹ï¿½ï¿½ï¿½Ò§ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Í¨Ó¹Ç¹)
     public void SetShortcut(ItemSO newItem)
     {
         item = newItem;
@@ -28,7 +34,7 @@ public class HotbarSlot : MonoBehaviour
         UpdateUI();
     }
 
-    // ÇÒ§à»ç¹ "¢Í§¨ÃÔ§" (¶×Í¨Ó¹Ç¹)
+    // ï¿½Ò§ï¿½ï¿½ "ï¿½Í§ï¿½ï¿½Ô§" (ï¿½ï¿½Í¨Ó¹Ç¹)
     public void SetStack(ItemSO newItem, int newAmount)
     {
         item = newItem;
@@ -53,12 +59,15 @@ public class HotbarSlot : MonoBehaviour
             else { iconImage.sprite = null; iconImage.enabled = false; }
         }
 
-        // Amount text
+        // Amount text â€” Tool à¹à¸ªà¸”à¸‡ âˆž à¹à¸—à¸™à¸•à¸±à¸§à¹€à¸¥à¸‚
         if (amountText)
         {
-            if (amount > 1) amountText.text = amount.ToString();
-            else if (amount == 1) amountText.text = "1";
-            else amountText.text = ""; // ªÍÃìµ¤ÑµËÃ×ÍÇèÒ§
+            if (item != null && item.category == ItemCategory.Tool)
+                amountText.text = "âˆž";
+            else if (amount > 0)
+                amountText.text = amount.ToString();
+            else
+                amountText.text = "";
         }
     }
 }

@@ -14,6 +14,12 @@ public class InventorySlot : MonoBehaviour
 
     public bool IsEmpty => item == null || amount <= 0;
 
+    void Start()
+    {
+        // Refresh UI เธ•เธญเธเน€เธฃเธดเนเธกเน€เธเธกเน€เธเธทเนเธญเนเธซเน Tool เนเธชเธ”เธ โ เธ—เธฑเธเธ—เธต
+        UpdateUI();
+    }
+
     // ---------- Public API ----------
     public void SetItem(ItemSO newItem) => SetItem(newItem, 1);
 
@@ -63,16 +69,20 @@ public class InventorySlot : MonoBehaviour
             }
         }
 
-        // Amount text (จะแสดง 1 หรือซ่อนได้ตามต้องการ)
+        // Amount text โ€” Tool เนเธชเธ”เธ โ เนเธ—เธเธ•เธฑเธงเน€เธฅเธ
         if (amountText)
         {
-            if (item == null || amount <= 0) amountText.text = "";
-            else amountText.text = amount.ToString();
+            if (item == null || amount <= 0)
+                amountText.text = "";
+            else if (item.category == ItemCategory.Tool)
+                amountText.text = "โ";
+            else
+                amountText.text = amount.ToString();
         }
     }
 
-    // ---------- WRAPPERS เพื่อให้โค้ดเก่าทำงานได้ ----------
-    // โค้ดเก่าบางไฟล์เรียกชื่อเดิมพวกนี้อยู่
+    // ---------- WRAPPERS ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝาทำงาน๏ฟฝ๏ฟฝ ----------
+    // ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝาบาง๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝยก๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝวก๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ
     public void ClearSlot() => Clear();
     public void UpdateAmountText() => UpdateUI();
 }

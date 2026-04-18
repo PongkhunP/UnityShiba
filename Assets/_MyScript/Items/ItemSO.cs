@@ -1,8 +1,10 @@
 using UnityEngine;
 
 public enum ItemCategory { Tool, Seed, Consumable, CraftingMaterial, FarmHelper }
-// [���] ���� Axe ����㹹��
 public enum ToolAction { None, Hoe, Water, Axe }
+
+/// <summary>หมวดหมู่สำหรับแสดงใน Day Summary — ตั้งค่าใน ItemSO แต่ละชิ้น</summary>
+public enum SellCategory { Farming, Fishing, Ore, Other }
 
 [CreateAssetMenu(menuName = "Items/Item")]
 public class ItemSO : ScriptableObject
@@ -42,4 +44,7 @@ public class ItemSO : ScriptableObject
     [Header("Sell")]
     public bool sellable = true;
     public int sellPrice = 10;
+
+    [Tooltip("หมวดหมู่ที่จะแสดงใน Day Summary (Farming/Fishing/Ore/Other)")]
+    public SellCategory sellCategory = SellCategory.Other;
 }

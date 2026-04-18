@@ -52,6 +52,9 @@ public class TimeOfDaySystem : MonoBehaviour
     private DayPhase currentPhase;
     public float Time01 => time01;
 
+    /// <summary>หยุดเวลาชั่วคราว (DayEndSystem ใช้ตอนแสดง summary)</summary>
+    public bool IsPaused { get; set; } = false;
+
     public int Hour => Mathf.FloorToInt(time01 * 24f);
     public int Minute => Mathf.FloorToInt(((time01 * 24f) % 1) * 60f);
 
@@ -87,6 +90,7 @@ public class TimeOfDaySystem : MonoBehaviour
 
     void AdvanceTime()
     {
+        if (IsPaused) return;
         float secondsPerDay = Mathf.Max(1f, dayLengthInMinutes * 60f);
         time01 += Time.deltaTime / secondsPerDay;
         if (time01 >= 1f) time01 -= 1f;

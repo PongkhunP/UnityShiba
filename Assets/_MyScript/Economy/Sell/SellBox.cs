@@ -1,201 +1,432 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
-/// [UPGRADED] ระบบขายของ — ใช้ราคาตลาด (MarketPriceSystem) แทน fixed price
-/// - ขายแล้ว → บันทึกลง MarketPriceSystem → ราคาลดลง
-/// - แสดง feedback ราคาที่ขายได้
+/// SellBox — เปิดกล่องแล้วลากของจาก Inventory ไปขาย
+///
+/// Flow:
+/// 1. Player เข้าใกล้กล่อง → prompt "กด E เพื่อเปิดกล่องขาย"
+/// 2. กด E → Animation "Open" + เปิด UI
+/// 3. UI ซ้าย: Inventory items (คลิกเพื่อใส่กล่อง)
+/// 4. UI ขวา: ของที่อยู่ในกล่อง (staged) + ราคารวม
+/// 5. ปุ่ม "ขาย" → ขายของทั้งหมดในกล่อง
+/// 6. กด E / ปุ่ม Close → ปิด UI + Animation "Close"
+///
+/// UI Setup ใน Canvas:
+///   SellPanel
+///     ├── InventoryPanel (ซ้าย)
+///     │     ├── Title (TMP — "Inventory")
+///     │     └── InventorySlotsParent (GridLayoutGroup)
+///     ├── StagedPanel (ขวา — "กล่องขาย")
+///     │     ├── Title (TMP — "กล่องขาย")
+///     │     ├── StagedSlotsParent (VerticalLayoutGroup)
+///     │     ├── TotalPriceText (TMP — "รวม: ¥0")
+///     │     ├── SellButton (Button — "ขาย")
+///     │     └── ClearButton (Button — "เคลียร์")
+///     └── CloseButton (Button — "ปิด")
 /// </summary>
 public class SellBox : MonoBehaviour
 {
+    // ─── Keys ─────────────────────────────────────────────────────────
     [Header("Keys")]
-    public KeyCode sellSelectedKey = KeyCode.F;
-    public KeyCode sellAllKey = KeyCode.G;
+    public KeyCode openKey = KeyCode.E;
+
+    // ─── Box Animation ────────────────────────────────────────────────
+    [Header("Box Animation")]
+    [Tooltip("Animator ของ model กล่อง — ต้องมี trigger 'Open' และ 'Close'")]
+    public Animator boxAnimator;
 
     [Header("Price")]
-    [Tooltip("ตัวคูณราคาเพิ่มเติม (1 = ปกติ, 1.2 = แพงขึ้น 20%)")]
     public float sellMultiplier = 1f;
 
-    [Header("UI Prompt")]
+    // ─── Prompt ───────────────────────────────────────────────────────
+    [Header("Prompt UI")]
     public GameObject promptPanel;
     public TextMeshProUGUI promptLabel;
 
-    [Header("Sell Feedback (optional)")]
+    // ─── Sell Panel ───────────────────────────────────────────────────
+    [Header("Sell Panel")]
+    public GameObject sellPanel;
+
+    [Header("  Inventory Side (ซ้าย)")]
+    [Tooltip("Parent ที่ spawn ปุ่ม inventory item (GridLayoutGroup)")]
+    public Transform inventorySlotsParent;
+    [Tooltip("Prefab ปุ่ม item — ต้องมี Image ชื่อ 'Icon', TMP ชื่อ 'Label'")]
+    public GameObject inventoryItemButtonPrefab;
+
+    [Header("  Staged Side (ขวา — กล่องขาย)")]
+    [Tooltip("Parent ที่ spawn staged item rows (VerticalLayoutGroup)")]
+    public Transform stagedSlotsParent;
+    [Tooltip("Prefab row staged — ต้องมี Image 'Icon', TMP 'Label', Button 'RemoveBtn'")]
+    public GameObject stagedRowPrefab;
+    public TextMeshProUGUI totalPriceText;
+    public Button sellButton;
+    public Button clearButton;
+    public Button closeButton;
+
+    // ─── Feedback ─────────────────────────────────────────────────────
+    [Header("Feedback")]
     public TextMeshProUGUI feedbackLabel;
-    public float feedbackDuration = 2f;
+    public float feedbackDuration = 2.5f;
 
     [Header("SFX")]
     public AudioSource sfxSource;
+    public AudioClip openSfx;
     public AudioClip sellSfx;
     [Range(0f, 1f)] public float sfxVolume = 1f;
 
-    private bool playerInRange;
-    private float feedbackTimer;
+    // ─── Runtime ──────────────────────────────────────────────────────
+    bool _playerInRange;
+    bool _isOpen;
+    float _feedbackTimer;
 
-    private void Start()
+    // staged items: item + amount ที่รอขาย
+    readonly List<StagedItem> _staged = new List<StagedItem>();
+    readonly List<GameObject> _spawnedInvButtons  = new List<GameObject>();
+    readonly List<GameObject> _spawnedStagedRows  = new List<GameObject>();
+
+    [System.Serializable]
+    class StagedItem
+    {
+        public ItemSO item;
+        public int amount;
+        public StagedItem(ItemSO i, int a) { item = i; amount = a; }
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    void Start()
     {
         if (promptPanel) promptPanel.SetActive(false);
+        if (sellPanel)   sellPanel.SetActive(false);
         if (feedbackLabel) feedbackLabel.text = "";
+
+        if (sellButton)  sellButton.onClick.AddListener(OnSellPressed);
+        if (clearButton) clearButton.onClick.AddListener(OnClearPressed);
+        if (closeButton) closeButton.onClick.AddListener(OnClosePressed);
     }
 
-    private void OnTriggerEnter(Collider other)
+    // ─── Trigger ──────────────────────────────────────────────────────
+
+    void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
-        {
-            playerInRange = true;
-            if (promptPanel) promptPanel.SetActive(true);
-        }
+        if (!other.CompareTag("Player")) return;
+        _playerInRange = true;
+        ShowPrompt($"กด [{openKey}] เพื่อเปิดกล่องขาย");
     }
 
-    private void OnTriggerExit(Collider other)
+    void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Player"))
-        {
-            playerInRange = false;
-            if (promptPanel) promptPanel.SetActive(false);
-        }
+        if (!other.CompareTag("Player")) return;
+        _playerInRange = false;
+        if (promptPanel) promptPanel.SetActive(false);
+        if (_isOpen) CloseBox();
     }
 
-    private void Update()
+    // ─── Update ───────────────────────────────────────────────────────
+
+    void Update()
     {
-        if (!playerInRange) return;
-
-        if (Input.GetKeyDown(sellSelectedKey))
-            SellFromHotbarSelected();
-
-        if (Input.GetKeyDown(sellAllKey))
-            SellAllFromInventory();
-
         // Feedback timer
-        if (feedbackTimer > 0)
+        if (_feedbackTimer > 0)
         {
-            feedbackTimer -= Time.deltaTime;
-            if (feedbackTimer <= 0 && feedbackLabel)
-                feedbackLabel.text = "";
+            _feedbackTimer -= Time.deltaTime;
+            if (_feedbackTimer <= 0 && feedbackLabel) feedbackLabel.text = "";
+        }
+
+        if (!_playerInRange) return;
+
+        if (Input.GetKeyDown(openKey))
+        {
+            if (_isOpen) CloseBox();
+            else OpenBox();
+        }
+
+        if (_isOpen && Input.GetKeyDown(KeyCode.Escape))
+            CloseBox();
+    }
+
+    // ─── Open / Close ─────────────────────────────────────────────────
+
+    void OpenBox()
+    {
+        _isOpen = true;
+        if (promptPanel) promptPanel.SetActive(false);
+
+        // Animation
+        if (boxAnimator) boxAnimator.SetTrigger("Open");
+
+        // SFX
+        if (sfxSource && openSfx) sfxSource.PlayOneShot(openSfx, sfxVolume);
+
+        // Unlock cursor
+        Cursor.visible    = true;
+        Cursor.lockState  = CursorLockMode.None;
+
+        _staged.Clear();
+        if (sellPanel) sellPanel.SetActive(true);
+
+        RefreshInventoryPanel();
+        RefreshStagedPanel();
+    }
+
+    void CloseBox()
+    {
+        // คืนของทั้งหมดใน staged กลับ Inventory ก่อนปิด (ยังไม่ได้ขาย)
+        if (_staged.Count > 0)
+            OnClearPressed();
+
+        _isOpen = false;
+
+        if (boxAnimator) boxAnimator.SetTrigger("Close");
+        if (sellPanel)   sellPanel.SetActive(false);
+        ShowPrompt($"กด [{openKey}] เพื่อเปิดกล่องขาย");
+
+        // Lock cursor
+        if (!InventoryUI.IsOpen)
+        {
+            Cursor.visible   = false;
+            Cursor.lockState = CursorLockMode.Locked;
         }
     }
 
-    // ================================================================
-    // Sell Selected (Hotbar)
-    // ================================================================
+    // ─── Inventory Panel ──────────────────────────────────────────────
 
-    void SellFromHotbarSelected()
+    void RefreshInventoryPanel()
     {
-        var hb = HotbarUI.Instance;
-        if (hb == null) return;
+        foreach (var g in _spawnedInvButtons) if (g) Destroy(g);
+        _spawnedInvButtons.Clear();
 
-        var slot = hb.GetSelectedSlot();
-        if (slot == null || slot.item == null || slot.amount <= 0) return;
+        if (inventorySlotsParent == null || inventoryItemButtonPrefab == null) return;
 
-        int pricePer = GetSellPrice(slot.item);
-        if (pricePer <= 0)
+        // Inventory slots
+        if (InventoryUI.Instance != null)
         {
-            ShowFeedback($"{slot.item.itemName} ขายไม่ได้!", Color.gray);
-            return;
-        }
-
-        int total = pricePer * slot.amount;
-        string itemName = slot.item.itemName;
-        int amount = slot.amount;
-
-        PlayerWallet.Instance?.Add(total);
-
-        // [NEW] บันทึกการขายลงตลาด
-        RecordSale(itemName, amount);
-
-        slot.Clear();
-
-        ShowFeedback($"ขาย {itemName} x{amount} — ¥{total:N0}", new Color(0.2f, 0.8f, 0.2f));
-        PlaySfx();
-    }
-
-    // ================================================================
-    // Sell All (Inventory)
-    // ================================================================
-
-    void SellAllFromInventory()
-    {
-        var inv = InventoryUI.Instance;
-        if (inv == null) return;
-
-        int total = 0;
-        int itemCount = 0;
-
-        foreach (var s in inv.slots)
-        {
-            if (s.item != null && s.amount > 0)
+            foreach (var slot in InventoryUI.Instance.slots)
             {
-                int pricePer = GetSellPrice(s.item);
-                if (pricePer > 0)
-                {
-                    int earned = pricePer * s.amount;
-                    total += earned;
-                    itemCount += s.amount;
-
-                    // [NEW] บันทึกการขายลงตลาด
-                    RecordSale(s.item.itemName, s.amount);
-
-                    s.Clear();
-                }
+                if (slot == null || slot.item == null || slot.amount <= 0) continue;
+                if (!slot.item.sellable) continue;
+                SpawnInventoryButton(slot.item, slot.amount, isHotbar: false);
             }
         }
 
-        if (total > 0)
+        // Hotbar slots
+        if (HotbarUI.Instance != null)
         {
-            PlayerWallet.Instance?.Add(total);
-            ShowFeedback($"ขายทั้งหมด {itemCount} ชิ้น — ¥{total:N0}", new Color(0.2f, 0.8f, 0.2f));
-            PlaySfx();
-        }
-        else
-        {
-            ShowFeedback("ไม่มีของที่ขายได้", Color.gray);
+            foreach (var slot in HotbarUI.Instance.slots)
+            {
+                if (slot == null || slot.item == null || slot.amount <= 0) continue;
+                if (!slot.item.sellable) continue;
+                if (slot.item.category == ItemCategory.Tool) continue; // Tool ขายไม่ได้
+                SpawnInventoryButton(slot.item, slot.amount, isHotbar: true);
+            }
         }
     }
 
-    // ================================================================
-    // Price Calculation — ใช้ตลาด
-    // ================================================================
+    void SpawnInventoryButton(ItemSO item, int amount, bool isHotbar)
+    {
+        var obj = Instantiate(inventoryItemButtonPrefab, inventorySlotsParent);
+        _spawnedInvButtons.Add(obj);
+
+        // Icon
+        var icon = obj.transform.Find("Icon")?.GetComponent<Image>();
+        if (icon && item.icon) icon.sprite = item.icon;
+
+        // Label: ชื่อ + จำนวน + ราคา
+        int price = GetSellPrice(item) * amount;
+        var label = obj.transform.Find("Label")?.GetComponent<TextMeshProUGUI>();
+        if (label) label.text = $"{item.itemName} x{amount}\n¥{price:N0}";
+
+        // Click → ใส่กล่อง
+        var btn = obj.GetComponent<Button>();
+        if (btn)
+        {
+            var captureItem   = item;
+            var captureAmount = amount;
+            var captureIsHotbar = isHotbar;
+            btn.onClick.AddListener(() => MoveToBox(captureItem, captureAmount, captureIsHotbar));
+        }
+    }
+
+    // ─── Staged Panel ─────────────────────────────────────────────────
+
+    void RefreshStagedPanel()
+    {
+        foreach (var g in _spawnedStagedRows) if (g) Destroy(g);
+        _spawnedStagedRows.Clear();
+
+        int total = 0;
+        foreach (var staged in _staged)
+        {
+            int rowPrice = GetSellPrice(staged.item) * staged.amount;
+            total += rowPrice;
+
+            if (stagedSlotsParent != null && stagedRowPrefab != null)
+            {
+                var row = Instantiate(stagedRowPrefab, stagedSlotsParent);
+                _spawnedStagedRows.Add(row);
+
+                var icon  = row.transform.Find("Icon")?.GetComponent<Image>();
+                var label = row.transform.Find("Label")?.GetComponent<TextMeshProUGUI>();
+                var removeBtn = row.transform.Find("RemoveBtn")?.GetComponent<Button>();
+
+                if (icon && staged.item.icon) icon.sprite = staged.item.icon;
+                if (label) label.text = $"{staged.item.itemName} x{staged.amount}  ¥{rowPrice:N0}";
+
+                var capturedStaged = staged;
+                removeBtn?.onClick.AddListener(() =>
+                {
+                    ReturnToInventory(capturedStaged);
+                    RefreshInventoryPanel();
+                    RefreshStagedPanel();
+                });
+            }
+        }
+
+        if (totalPriceText) totalPriceText.text = $"รวม: ¥{total:N0}";
+        if (sellButton) sellButton.interactable = _staged.Count > 0;
+    }
+
+    // ─── Move To Box ──────────────────────────────────────────────────
+
+    void MoveToBox(ItemSO item, int amount, bool fromHotbar)
+    {
+        // ดึงออกจาก Inventory / Hotbar
+        if (fromHotbar)
+        {
+            if (HotbarUI.Instance != null)
+                RemoveFromHotbar(item, amount);
+        }
+        else
+        {
+            if (InventoryUI.Instance != null)
+                RemoveFromInventory(item, amount);
+        }
+
+        // เพิ่มใน staged
+        var existing = _staged.Find(s => s.item == item);
+        if (existing != null) existing.amount += amount;
+        else _staged.Add(new StagedItem(item, amount));
+
+        RefreshInventoryPanel();
+        RefreshStagedPanel();
+    }
+
+    void ReturnToInventory(StagedItem staged)
+    {
+        _staged.Remove(staged);
+        // คืนของกลับ Inventory
+        if (InventoryUI.Instance != null)
+            InventoryUI.Instance.AddItemToInventory(staged.item, staged.amount);
+    }
+
+    // ─── Sell ─────────────────────────────────────────────────────────
+
+    void OnSellPressed()
+    {
+        if (_staged.Count == 0) { ShowFeedback("ไม่มีของในกล่อง!", Color.gray); return; }
+
+        int total = 0;
+        int totalItems = 0;
+
+        foreach (var staged in _staged)
+        {
+            int price = GetSellPrice(staged.item) * staged.amount;
+            total += price;
+            totalItems += staged.amount;
+
+            // บันทึกรายรับ
+            DailyEconomyTracker.Instance?.RecordSale(staged.item, staged.amount, price);
+            if (MarketPriceSystem.Instance != null)
+                MarketPriceSystem.Instance.RecordSale(staged.item.itemName, staged.amount);
+        }
+
+        PlayerWallet.Instance?.Add(total);
+        _staged.Clear();
+
+        PlaySfx(sellSfx);
+        ShowFeedback($"ขายสำเร็จ {totalItems} ชิ้น — ¥{total:N0}", new Color(0.2f, 0.8f, 0.2f));
+
+        RefreshInventoryPanel();
+        RefreshStagedPanel();
+    }
+
+    void OnClearPressed()
+    {
+        // คืนของทั้งหมดใน staged กลับ Inventory
+        foreach (var staged in _staged)
+            InventoryUI.Instance?.AddItemToInventory(staged.item, staged.amount);
+        _staged.Clear();
+
+        RefreshInventoryPanel();
+        RefreshStagedPanel();
+    }
+
+    void OnClosePressed() => CloseBox();
+
+    // ─── Remove Helpers ───────────────────────────────────────────────
+
+    void RemoveFromInventory(ItemSO item, int amount)
+    {
+        if (InventoryUI.Instance == null) return;
+        int remaining = amount;
+        foreach (var slot in InventoryUI.Instance.slots)
+        {
+            if (remaining <= 0) break;
+            if (slot == null || slot.item != item) continue;
+            int take = Mathf.Min(remaining, slot.amount);
+            slot.DecreaseAmount(take);
+            remaining -= take;
+        }
+    }
+
+    void RemoveFromHotbar(ItemSO item, int amount)
+    {
+        if (HotbarUI.Instance == null) return;
+        int remaining = amount;
+        foreach (var slot in HotbarUI.Instance.slots)
+        {
+            if (remaining <= 0) break;
+            if (slot == null || slot.item != item) continue;
+            int take = Mathf.Min(remaining, slot.amount);
+            int newAmount = slot.amount - take;
+            if (newAmount <= 0) slot.Clear();
+            else slot.SetStack(slot.item, newAmount);
+            remaining -= take;
+        }
+    }
+
+    // ─── Price ────────────────────────────────────────────────────────
 
     int GetSellPrice(ItemSO item)
     {
         if (item == null || !item.sellable) return 0;
-
-        // [UPGRADED] ใช้ MarketPriceSystem ถ้ามี
         if (MarketPriceSystem.Instance != null)
             return MarketPriceSystem.Instance.GetSellPrice(item, sellMultiplier);
-
-        // Fallback — ราคา fixed แบบเดิม
         return Mathf.RoundToInt(item.sellPrice * sellMultiplier);
     }
 
-    // ================================================================
-    // Market Recording
-    // ================================================================
+    // ─── UI Helpers ───────────────────────────────────────────────────
 
-    void RecordSale(string itemName, int amount)
+    void ShowPrompt(string msg)
     {
-        if (MarketPriceSystem.Instance != null)
-            MarketPriceSystem.Instance.RecordSale(itemName, amount);
+        if (promptPanel) promptPanel.SetActive(true);
+        if (promptLabel) promptLabel.text = msg;
     }
 
-    // ================================================================
-    // Feedback
-    // ================================================================
-
-    void ShowFeedback(string msg, Color c)
+    void ShowFeedback(string msg, Color color)
     {
-        if (feedbackLabel)
-        {
-            feedbackLabel.text = msg;
-            feedbackLabel.color = c;
-            feedbackTimer = feedbackDuration;
-        }
+        if (!feedbackLabel) return;
+        feedbackLabel.text  = msg;
+        feedbackLabel.color = color;
+        _feedbackTimer = feedbackDuration;
         Debug.Log($"[SellBox] {msg}");
     }
 
-    void PlaySfx()
+    void PlaySfx(AudioClip clip)
     {
-        if (sfxSource && sellSfx)
-            sfxSource.PlayOneShot(sellSfx, sfxVolume);
+        if (sfxSource && clip) sfxSource.PlayOneShot(clip, sfxVolume);
     }
 }

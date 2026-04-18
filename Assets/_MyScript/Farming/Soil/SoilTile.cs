@@ -216,7 +216,15 @@ public class SoilTile : MonoBehaviour
 
         if (string.IsNullOrEmpty(d.cropName))
         {
-            ClearCrop();
+            // [FIX] ไม่เรียก ClearCrop() เพราะมันจะ reset isTilled = false
+            // ให้ clear เฉพาะ crop object แต่คงสถานะดินจาก save
+            crop = null;
+            stageIndex = 0;
+            stageTimer = 0f;
+            if (currentCropObj) { Destroy(currentCropObj); currentCropObj = null; }
+            isTilled  = d.isTilled;
+            isWatered = d.isWatered;
+            UpdateGroundVisual();
             return;
         }
 
