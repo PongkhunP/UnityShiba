@@ -343,11 +343,11 @@ public class SellBox : MonoBehaviour
                 MarketPriceSystem.Instance.RecordSale(staged.item.itemName, staged.amount);
         }
 
-        PlayerWallet.Instance?.Add(total);
+        // ไม่จ่ายเงินทันที — รอจ่ายตอนจบวัน (DayEndSystem.FinishDay)
         _staged.Clear();
 
         PlaySfx(sellSfx);
-        ShowFeedback($"ขายสำเร็จ {totalItems} ชิ้น — ¥{total:N0}", new Color(0.2f, 0.8f, 0.2f));
+        ShowFeedback($"วางขาย {totalItems} ชิ้น — รับ ¥{total:N0} ตอนจบวัน", new Color(0.2f, 0.8f, 0.2f));
 
         RefreshInventoryPanel();
         RefreshStagedPanel();

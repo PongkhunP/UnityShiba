@@ -1,8 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using TMPro;
 
-public class InventorySlot : MonoBehaviour
+public class InventorySlot : MonoBehaviour, IPointerClickHandler
 {
     [Header("UI refs")]
     public Image iconImage;
@@ -14,25 +15,22 @@ public class InventorySlot : MonoBehaviour
 
     public bool IsEmpty => item == null || amount <= 0;
 
-    void Start()
-    {
-        // Refresh UI ตอนเริ่มเกมเพื่อให้ Tool แสดง ∞ ทันที
-        UpdateUI();
-    }
+    void Start() => UpdateUI();
 
-    // ---------- Public API ----------
+    // ─── Public API ───────────────────────────────────────────────────
+
     public void SetItem(ItemSO newItem) => SetItem(newItem, 1);
 
     public void SetItem(ItemSO newItem, int newAmount)
     {
-        item = newItem;
+        item   = newItem;
         amount = Mathf.Max(1, newAmount);
         UpdateUI();
     }
 
     public void Clear()
     {
-        item = null;
+        item   = null;
         amount = 0;
         UpdateUI();
     }
@@ -54,35 +52,24 @@ public class InventorySlot : MonoBehaviour
 
     public void UpdateUI()
     {
-        // Icon
         if (iconImage)
         {
-            if (item != null)
-            {
-                iconImage.sprite = item.icon;
-                iconImage.enabled = true;
-            }
-            else
-            {
-                iconImage.sprite = null;
-                iconImage.enabled = false;
-            }
+            iconImage.sprite  = item?.icon;
+            iconImage.enabled = item != null;
         }
 
-        // Amount text — Tool แสดง ∞ แทนตัวเลข
         if (amountText)
         {
-            if (item == null || amount <= 0)
-                amountText.text = "";
-            else if (item.category == ItemCategory.Tool)
-                amountText.text = "∞";
-            else
-                amountText.text = amount.ToString();
+            if (item == null || amount <= 0) amountText.text = "";
+            else if (item.category == ItemCategory.Tool) amountText.text = "∞";
+            else amountText.text = amount.ToString();
         }
     }
 
-    // ---------- WRAPPERS �����������ҷӧҹ�� ----------
-    // ����Һҧ������¡��������ǡ�������
-    public void ClearSlot() => Clear();
+    // ─── Click (ไว้สำหรับระบบเดิมถ้าจำเป็น) ──────────────────────────
+    public void OnPointerClick(PointerEventData eventData) { }
+
+    // ─── Wrappers ─────────────────────────────────────────────────────
+    public void ClearSlot()        => Clear();
     public void UpdateAmountText() => UpdateUI();
 }
