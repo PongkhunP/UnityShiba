@@ -30,6 +30,9 @@
 /[Aa]ssets/Plugins/Editor/JetBrains*
 # Jetbrains Rider personal-layer settings
 *.DotSettings.user
+/Assets/!SoStylized/
+/Assets/_MyObject/
+/Assets/Polyart/
 
 # Visual Studio cache directory
 .vs/
