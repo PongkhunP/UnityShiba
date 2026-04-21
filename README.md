@@ -27,3 +27,5 @@ To maintain a clean and searchable project history, all contributors must follow
 | **Optimization** | `Fix[view]: correct image loading behaviour from auto to lazy` |
 | **Networking** | `Add[middleware]: add authen for users resource` |
 | **Assets** | `Add[prefabs]: add new Shiba model variants` |
+| **New script** | `Add[NetworkController]: add new script handle network management` |
+| **Folder** | `Add[Prefab]: add new prefab folder` |
