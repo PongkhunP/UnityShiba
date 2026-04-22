@@ -29,7 +29,7 @@ public class PlayerController : NetworkBehaviour
     public bool isSitting { get; private set; }
     private Transform currentSitPoint;
 
-    public override void OnNetworkSpawn() //Equivalent to Start in Single Player
+    public override void OnNetworkSpawn()
     {
         controller = GetComponent<CharacterController>();
         animator = GetComponentInChildren<Animator>();
@@ -96,6 +96,8 @@ public class PlayerController : NetworkBehaviour
     {
         isGrounded = controller.isGrounded;
         if (isGrounded && velocity.y < 0f) velocity.y = -2f;
+
+        Debug.Log("Move Input: " + InputHandler.Singleton.MoveInput);
  
         Vector2 input = InputHandler.Singleton.MoveInput;
 
