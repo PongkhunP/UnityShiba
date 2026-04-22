@@ -154,6 +154,24 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Numkey"",
+                    ""type"": ""Button"",
+                    ""id"": ""6474d30c-c831-4316-9ef7-1e342a1fca96"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""NumPad"",
+                    ""type"": ""Button"",
+                    ""id"": ""ecd493bf-0911-4a68-b1d8-91ea11486d68"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -354,6 +372,127 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""action"": ""Pointer"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2ef00515-7ff8-4aee-bae5-368340760782"",
+                    ""path"": ""<Keyboard>/1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Numkey"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""db05d58a-7c6b-475c-ad6d-4021757267df"",
+                    ""path"": ""<Keyboard>/2"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Numkey"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""18c6a97f-91c8-46b0-a9ad-57f4692b03d4"",
+                    ""path"": ""<Keyboard>/3"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Numkey"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d7cf13c8-cfa3-4aa3-8006-8d5ae67a8121"",
+                    ""path"": ""<Keyboard>/4"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Numkey"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""19a7375c-0c11-4e2a-938d-627a9ecebefb"",
+                    ""path"": ""<Keyboard>/5"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Numkey"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""282c112f-bec7-4e9b-88fd-70a21ba40c5e"",
+                    ""path"": ""<Keyboard>/6"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Numkey"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""bdaabe90-5556-4f45-a543-409ce5d52ba6"",
+                    ""path"": ""<Keyboard>/7"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Numkey"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""dc1e78af-301d-4089-a617-a186c47c0f1d"",
+                    ""path"": ""<Keyboard>/8"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Numkey"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""769528ba-e3b0-4aca-bc22-ae6de2ae9137"",
+                    ""path"": ""<Keyboard>/9"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Numkey"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""72a3d737-a5a5-4fd9-aa86-b57e72e260e0"",
+                    ""path"": ""<Keyboard>/0"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Numkey"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""192939b9-355a-4ac0-a2c1-1ee8ddfbce17"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""NumPad"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -375,6 +514,8 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_Key_Sprint = m_Key.FindAction("Sprint", throwIfNotFound: true);
         m_Key_Inventory = m_Key.FindAction("Inventory", throwIfNotFound: true);
         m_Key_Pointer = m_Key.FindAction("Pointer", throwIfNotFound: true);
+        m_Key_Numkey = m_Key.FindAction("Numkey", throwIfNotFound: true);
+        m_Key_NumPad = m_Key.FindAction("NumPad", throwIfNotFound: true);
     }
 
     ~@PlayerControls()
@@ -462,6 +603,8 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Key_Sprint;
     private readonly InputAction m_Key_Inventory;
     private readonly InputAction m_Key_Pointer;
+    private readonly InputAction m_Key_Numkey;
+    private readonly InputAction m_Key_NumPad;
     /// <summary>
     /// Provides access to input actions defined in input action map "Key".
     /// </summary>
@@ -501,6 +644,14 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Key/Pointer".
         /// </summary>
         public InputAction @Pointer => m_Wrapper.m_Key_Pointer;
+        /// <summary>
+        /// Provides access to the underlying input action "Key/Numkey".
+        /// </summary>
+        public InputAction @Numkey => m_Wrapper.m_Key_Numkey;
+        /// <summary>
+        /// Provides access to the underlying input action "Key/NumPad".
+        /// </summary>
+        public InputAction @NumPad => m_Wrapper.m_Key_NumPad;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -548,6 +699,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Pointer.started += instance.OnPointer;
             @Pointer.performed += instance.OnPointer;
             @Pointer.canceled += instance.OnPointer;
+            @Numkey.started += instance.OnNumkey;
+            @Numkey.performed += instance.OnNumkey;
+            @Numkey.canceled += instance.OnNumkey;
+            @NumPad.started += instance.OnNumPad;
+            @NumPad.performed += instance.OnNumPad;
+            @NumPad.canceled += instance.OnNumPad;
         }
 
         /// <summary>
@@ -580,6 +737,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Pointer.started -= instance.OnPointer;
             @Pointer.performed -= instance.OnPointer;
             @Pointer.canceled -= instance.OnPointer;
+            @Numkey.started -= instance.OnNumkey;
+            @Numkey.performed -= instance.OnNumkey;
+            @Numkey.canceled -= instance.OnNumkey;
+            @NumPad.started -= instance.OnNumPad;
+            @NumPad.performed -= instance.OnNumPad;
+            @NumPad.canceled -= instance.OnNumPad;
         }
 
         /// <summary>
@@ -682,5 +845,19 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnPointer(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Numkey" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnNumkey(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "NumPad" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnNumPad(InputAction.CallbackContext context);
     }
 }
