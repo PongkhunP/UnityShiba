@@ -3,7 +3,6 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
-    // ... (Header ���) ...
     [Header("Movement")]
     public float walkSpeed = 2f;
     public float runSpeed = 4f;
@@ -31,8 +30,6 @@ public class PlayerController : MonoBehaviour
     // Cache
     private ItemSO _cachedItem;
     private SoilTile _cachedTile;
-
-    // [�ѻവ���ͤ��ʵç���]
     private ChoppableCut_Tree _cachedTree;
 
     private bool _hasCachedSoilAction;
@@ -49,7 +46,6 @@ public class PlayerController : MonoBehaviour
         if (HotbarUI.Instance != null) HotbarUI.Instance.IsInputLocked = isBusyAction;
         if (InventoryUI.IsOpen) return;
 
-        // [FIX] ตรวจ Dialogue ก่อน Movement เพื่อไม่ให้เดินขณะคุย NPC
         if (DialogueManager.Instance != null && DialogueManager.Instance.IsDialogueActive)
         {
             animator.SetFloat("Speed", 0);
@@ -67,7 +63,6 @@ public class PlayerController : MonoBehaviour
         HandleActionInput();
     }
 
-    // ... (HandleMovement ����͹���) ...
     private void HandleMovement()
     {
         isGrounded = controller.isGrounded;
@@ -97,14 +92,11 @@ public class PlayerController : MonoBehaviour
             var item = HotbarUI.Instance.GetSelectedItem();
             if (!item) return;
 
-            // *** FarmHelper — วางตัวช่วยในฟาร์ม ***
             if (item.category == ItemCategory.FarmHelper)
             {
                 TryPlaceFarmHelper(item);
                 return;
             }
-
-            // 1. ถ้าเป็นขวาน -> ตัดต้นไม้
             if (item.category == ItemCategory.Tool && item.toolAction == ToolAction.Axe)
             {
                 if (farmingSystem.TryGetTargetTree(out var tree))
@@ -120,7 +112,6 @@ public class PlayerController : MonoBehaviour
                 return;
             }
 
-            // 2. ถ้าไม่ใช่ขวาน -> หาดิน
             if (farmingSystem.TryGetTargetSoil(out var tile))
             {
                 _cachedItem = item;
@@ -159,14 +150,11 @@ public class PlayerController : MonoBehaviour
 
     private void TryPlaceFarmHelper(ItemSO item)
     {
-        // ตรวจว่ามี FarmHelperSO ใน item ไหม
         if (item.farmHelperData == null)
         {
             Debug.LogWarning($"[FarmHelper] {item.itemName} ไม่มี farmHelperData!");
             return;
         }
-
-        // ต้องการ TileCursor และ FarmHelperManager
         if (TileCursor.Instance == null || !TileCursor.Instance.IsActive)
         {
             Debug.LogWarning("[FarmHelper] TileCursor ไม่พบเป้าหมาย — เล็งไปที่พื้นในฟาร์มก่อนครับ");
@@ -178,27 +166,22 @@ public class PlayerController : MonoBehaviour
             Debug.LogError("[FarmHelper] ไม่พบ FarmHelperManager!");
             return;
         }
-
-        // ดึงตำแหน่งจาก TileCursor (มี Grid Snap อยู่แล้ว)
         Vector3 placePos = TileCursor.Instance.WorldPosition;
-        placePos.y -= 0.05f; // ลบ visualOffset ออก
+        placePos.y -= 0.05f;
 
-        // วาง
         FarmHelper placed = FarmHelperManager.Instance.PlaceHelper(item.farmHelperData, placePos);
 
         if (placed != null)
         {
-            // หันหน้าไปทางที่วาง
             FaceTo(placePos);
 
-            // ลบ item 1 ชิ้นออกจาก Hotbar
             var slot = HotbarUI.Instance.GetSelectedSlot();
             if (slot != null)
             {
                 if (slot.amount <= 1)
-                    slot.Clear();                    // หมดแล้ว → เคลียร์ slot
+                    slot.Clear();                   
                 else
-                    slot.SetStack(slot.item, slot.amount - 1); // ลดทีละ 1
+                    slot.SetStack(slot.item, slot.amount - 1); 
             }
 
             Debug.Log($"[FarmHelper] วาง {item.farmHelperData.helperName} ที่ {placePos} สำเร็จ!");
@@ -208,7 +191,6 @@ public class PlayerController : MonoBehaviour
     private void StartActionTrigger(string triggerName) { isBusyAction = true; animator.ResetTrigger(triggerName); animator.SetTrigger(triggerName); }
     private void FaceTo(Vector3 worldPos) { Vector3 dir = worldPos - transform.position; dir.y = 0f; if (dir.sqrMagnitude < 0.001f) return; transform.rotation = Quaternion.LookRotation(dir.normalized); }
 
-    /// <summary>ล็อก/ปลดล็อก player movement จากระบบภายนอก (FishingSystem, BoatController)</summary>
     public void SetBusy(bool busy) { isBusyAction = busy; }
 
     public void OnActionImpact()
@@ -242,7 +224,6 @@ public class PlayerController : MonoBehaviour
         _cachedTree = null;
     }
 
-    // ... (��ǹ Hold/Sit/Fish ����͹���) ...
     private void UpdateHoldStateFromHotbar() { if (!HotbarUI.Instance) { animator.SetBool("HoldItem", false); return; } var item = HotbarUI.Instance.GetSelectedItem(); var slot = HotbarUI.Instance.GetSelectedSlot(); bool shouldHold = item != null && (item.category == ItemCategory.Tool || (slot != null && slot.amount > 0)); animator.SetBool("HoldItem", shouldHold); }
     public void Sit(Transform sitPoint) { if (isSitting) return; currentSitPoint = sitPoint; isSitting = true; isBusyAction = false; controller.enabled = false; transform.position = sitPoint.position; transform.rotation = sitPoint.rotation; animator.SetBool("Sit", true); }
     private void HandleSitInput() { if (Input.GetKeyDown(KeyCode.E)) StandUpFromSit(); }

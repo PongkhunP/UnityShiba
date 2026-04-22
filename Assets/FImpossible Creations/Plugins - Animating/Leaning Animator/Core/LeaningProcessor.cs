@@ -268,11 +268,11 @@ namespace FIMSpace
             {
                 if( UpdateMode == AnimatorUpdateMode.Normal ) dt = Time.smoothDeltaTime;
                 else if( UpdateMode == AnimatorUpdateMode.UnscaledTime ) dt = Time.unscaledDeltaTime;
-                else if( UpdateMode == AnimatorUpdateMode.AnimatePhysics ) dt = Time.fixedDeltaTime;
+                else if( UpdateMode == AnimatorUpdateMode.Fixed ) dt = Time.fixedDeltaTime;
             }
             else dt = CustomDeltaTime;
 
-            if( UpdateMode != AnimatorUpdateMode.AnimatePhysics )
+            if( UpdateMode != AnimatorUpdateMode.Fixed)
             {
                 UpdateStack();
             }
@@ -385,7 +385,7 @@ namespace FIMSpace
 
             #region Support solution for animate physics mode -----
 
-            if( UpdateMode == AnimatorUpdateMode.AnimatePhysics )
+            if( UpdateMode == AnimatorUpdateMode.Fixed )
             {
                 //if (!lateFixedIsRunning) { Owner.StartCoroutine(LateFixed()); }
                 if( fixedAllow ) fixedAllow = false; else return;
@@ -407,7 +407,7 @@ namespace FIMSpace
 
         public void LateUpdate_Post()
         {
-            if( forceTransformBased ) if( UpdateMode != AnimatorUpdateMode.AnimatePhysics ) ResetPreVars();
+            if( forceTransformBased ) if( UpdateMode != AnimatorUpdateMode.Fixed ) ResetPreVars();
         }
 
         internal void LateUpdate()
@@ -434,7 +434,7 @@ namespace FIMSpace
                 }
             }
 
-            if( UpdateMode == AnimatorUpdateMode.AnimatePhysics )
+            if( UpdateMode == AnimatorUpdateMode.Fixed )
             {
                 UpdateStack();
             }
@@ -442,7 +442,7 @@ namespace FIMSpace
             if( rig && AccelerationDetection != EMotionDetection.TransformBased ) ComputeVelo();
 
             if( customDetection == false )
-                if( !forceTransformBased || UpdateMode == AnimatorUpdateMode.AnimatePhysics )
+                if( !forceTransformBased || UpdateMode == AnimatorUpdateMode.Fixed )
                     ResetPreVars();
 
             if( TryAutoDetectGround || GroundAlignBlend > 0f ) AutoDetectGround();
