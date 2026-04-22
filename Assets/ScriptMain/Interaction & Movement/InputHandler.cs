@@ -11,14 +11,15 @@ public class InputHandler : MonoBehaviour
     // --- POLLING (Continuous Values) ---
     public Vector2 MoveInput => _controls.Key.Move.ReadValue<Vector2>();
     public Vector2 MousePosition => _controls.Key.Pointer.ReadValue<Vector2>();
-    
+
     public bool IsSprinting => _controls.Key.Sprint.IsPressed();
 
     // --- OBSERVER (Pulse Events) ---
     public event Action OnJumpTriggered;
     public event Action OnInteractTriggered;
     public event Action OnInventoryTriggered;
-    public event Action<bool> OnSprintToggled; 
+    public event Action<bool> OnSprintToggled;
+    public event Action<int> OnNumkeyTriggered;
 
     private void Awake()
     {
@@ -26,7 +27,7 @@ public class InputHandler : MonoBehaviour
         {
             Singleton = this;
             _controls = new PlayerControls();
-            
+
             BindActions();
 
             _controls.Enable();
@@ -48,6 +49,13 @@ public class InputHandler : MonoBehaviour
 
         _controls.Key.Sprint.performed += ctx => OnSprintToggled?.Invoke(true);
         _controls.Key.Sprint.canceled += ctx => OnSprintToggled?.Invoke(false);
+        _controls.Key.Numkey.performed += ctx =>
+        {
+            if (int.TryParse(ctx.control.name, out int val))
+            {
+                OnNumkeyTriggered?.Invoke(val);
+            }
+        };
     }
 
     private void OnDestroy()
