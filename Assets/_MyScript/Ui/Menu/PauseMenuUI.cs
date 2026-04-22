@@ -15,7 +15,7 @@ public class PauseMenuUI : MonoBehaviour
     [SerializeField] private bool pauseWithTimeScale = true;
     [SerializeField] private bool unlockCursorOnOpen = true;
 
-    [Tooltip("ถ้าเปิด = ตอนเล่นเกมจะล็อคเมาส์และซ่อนเคอร์เซอร์ (เหมือน TPS)\nถ้าปิด = ตอนเล่นเกมจะเห็นเคอร์เซอร์ตลอด (เหมาะกับเกมคลิกทำฟาร์ม)")]
+    [Tooltip("๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝิด = ๏ฟฝอน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝอค๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝะซ๏ฟฝอน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ (๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝอน TPS)\n๏ฟฝ๏ฟฝาปิด = ๏ฟฝอน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝอด (๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝะกับ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝิก๏ฟฝำฟ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ)")]
     [SerializeField] private bool lockCursorWhenPlaying = false;
 
     [Header("UI Blockers (optional)")]
@@ -50,35 +50,35 @@ public class PauseMenuUI : MonoBehaviour
 
         if (player == null) return;
 
-        // ใส่เฉพาะ component บน Player ที่อยากปิดตอน Pause
-        // (ถ้าคุณใส่ไว้ใน extraDisable อยู่แล้ว ก็ไม่จำเป็นต้องใส่เพิ่มตรงนี้)
+        // ๏ฟฝ๏ฟฝ๏ฟฝเฉพ๏ฟฝ๏ฟฝ component ๏ฟฝ๏ฟฝ Player ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝาก๏ฟฝิด๏ฟฝอน Pause
+        // (๏ฟฝ๏ฟฝาคุณ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ extraDisable ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ็นต๏ฟฝอง๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝรง๏ฟฝ๏ฟฝ๏ฟฝ)
         var behaviours = player.GetComponentsInChildren<Behaviour>(true);
         foreach (var b in behaviours)
         {
             if (b == null) continue;
 
-            // อย่าปิดตัวเอง และอย่าปิด UI
+            // ๏ฟฝ๏ฟฝ๏ฟฝาปิด๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝอง ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝาปิด UI
             if (b == this) continue;
 
-            // กันพลาด: ถ้าเป็น InventoryUI หรือ PauseMenuUI ก็ไม่ต้องปิด
-            // (ใส่ชื่อไว้กัน compile error ถ้าไม่มีคลาส)
+            // ๏ฟฝัน๏ฟฝ๏ฟฝาด: ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ InventoryUI ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ PauseMenuUI ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝอง๏ฟฝิด
+            // (๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝัน compile error ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝีค๏ฟฝ๏ฟฝ๏ฟฝ)
             if (b.GetType().Name == "InventoryUI") continue;
             if (b.GetType().Name == "PauseMenuUI") continue;
 
-            // เก็บไว้ เผื่อคุณอยากใช้ในอนาคต
+            // ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ ๏ฟฝ๏ฟฝ๏ฟฝอคุณ๏ฟฝ๏ฟฝาก๏ฟฝ๏ฟฝ๏ฟฝอนาค๏ฟฝ
             // _autoDisable.Add(b);
         }
     }
 
     private void Update()
     {
-        // ถ้า Inventory เปิดอยู่ ให้ ESC ทำงานกับ Inventory (หรือไม่ก็แล้วแต่คุณ)
-        // ที่นี่เราจะให้ ESC เปิด/ปิด Pause เฉพาะตอน Inventory ไม่เปิด
+        // ๏ฟฝ๏ฟฝ๏ฟฝ Inventory ๏ฟฝิด๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ ๏ฟฝ๏ฟฝ๏ฟฝ ESC ๏ฟฝำงาน๏ฟฝับ Inventory (๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝุณ)
+        // ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝาจ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ ESC ๏ฟฝิด/๏ฟฝิด Pause เฉพ๏ฟฝะตอน Inventory ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝิด
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (InventoryUI.IsOpen) return;
+            if (InventoryMainUI.IsOpen) return;
 
-            // ถ้าอยู่ใน Settings แล้วกด ESC = กลับไปหน้า Pause
+            // ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ Settings ๏ฟฝ๏ฟฝ๏ฟฝวก๏ฟฝ ESC = ๏ฟฝ๏ฟฝับ๏ฟฝหน๏ฟฝ๏ฟฝ Pause
             if (_isPaused && settingsPanel != null && settingsPanel.activeSelf)
             {
                 CloseSettings();
@@ -92,13 +92,13 @@ public class PauseMenuUI : MonoBehaviour
 
     private void LateUpdate()
     {
-        // กันกรณีสคริปต์อื่นไปล็อคเมาส์ทับ (ช่วยแก้ “คลิกแล้วเมาส์หาย”)
+        // ๏ฟฝัน๏ฟฝรณ๏ฟฝสค๏ฟฝิป๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝอค๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝับ (๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ ๏ฟฝ๏ฟฝ๏ฟฝิก๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝย”)
         ApplyCursorState();
     }
 
     private void OnApplicationFocus(bool hasFocus)
     {
-        // เวลา alt-tab หรือคลิกกลับเข้าเกม ให้สถานะเมาส์ถูกต้องเสมอ
+        // ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ alt-tab ๏ฟฝ๏ฟฝ๏ฟฝอค๏ฟฝิก๏ฟฝ๏ฟฝับ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ ๏ฟฝ๏ฟฝ๏ฟฝสถาน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝูก๏ฟฝ๏ฟฝอง๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ
         if (hasFocus) ApplyCursorState();
     }
 
@@ -149,14 +149,14 @@ public class PauseMenuUI : MonoBehaviour
         if (pauseWithTimeScale)
             Time.timeScale = paused ? 0f : 1f;
 
-        // ปิด component ที่คุณลากมาใส่เองตอน pause
+        // ๏ฟฝิด component ๏ฟฝ๏ฟฝ๏ฟฝุณ๏ฟฝาก๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝอง๏ฟฝอน pause
         for (int i = 0; i < extraDisable.Count; i++)
         {
             var b = extraDisable[i];
             if (b != null) b.enabled = !paused;
         }
 
-        // (เผื่ออนาคต) ถ้าคุณอยากให้ auto disable ทำงาน ก็เปิดบรรทัดนี้
+        // (๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝอนาค๏ฟฝ) ๏ฟฝ๏ฟฝาคุณ๏ฟฝ๏ฟฝาก๏ฟฝ๏ฟฝ๏ฟฝ auto disable ๏ฟฝำงาน ๏ฟฝ๏ฟฝ๏ฟฝิด๏ฟฝ๏ฟฝรทัด๏ฟฝ๏ฟฝ๏ฟฝ
         // for (int i = 0; i < _autoDisable.Count; i++) if (_autoDisable[i] != null) _autoDisable[i].enabled = !paused;
 
         ApplyCursorState();
@@ -164,11 +164,11 @@ public class PauseMenuUI : MonoBehaviour
 
     private void ApplyCursorState()
     {
-        bool anyMenuOpen = _isPaused || InventoryUI.IsOpen;
+        bool anyMenuOpen = _isPaused || InventoryMainUI.IsOpen;
 
         if (anyMenuOpen)
         {
-            // เมนูเปิด -> ต้องเห็นเมาส์
+            // ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝิด -> ๏ฟฝ๏ฟฝอง๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ
             if (unlockCursorOnOpen)
             {
                 Cursor.visible = true;
@@ -177,7 +177,7 @@ public class PauseMenuUI : MonoBehaviour
             return;
         }
 
-        // เมนูปิด -> สถานะเมาส์ตอนเล่นเกม
+        // ๏ฟฝ๏ฟฝ๏ฟฝูปิด -> สถาน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝอน๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ๏ฟฝ
         if (lockCursorWhenPlaying)
         {
             Cursor.visible = false;
@@ -205,8 +205,8 @@ public class PauseMenuUI : MonoBehaviour
 
     public void OnButton_SaveAndQuit()
     {
-        if (GameManager.Instance != null)
-            GameManager.Instance.SaveGame();
+        if (GameDataManager.Singleton != null)
+            GameDataManager.Singleton.SaveGame();
 
         Time.timeScale = 1f;
         SceneManager.LoadScene("MainMenu");

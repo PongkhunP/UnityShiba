@@ -112,7 +112,7 @@ public class CraftingUI : MonoBehaviour
         if (craftingPanel) craftingPanel.SetActive(false);
 
         // Restore cursor — คืนค่าเฉพาะเมื่อไม่มี UI อื่นเปิดอยู่
-        bool anyUIOpen = (InventoryUI.Instance != null && InventoryUI.IsOpen);
+        bool anyUIOpen = (InventoryMainUI.Instance != null && InventoryMainUI.IsOpen);
         if (!anyUIOpen)
         {
             Cursor.visible = false;
@@ -184,9 +184,9 @@ public class CraftingUI : MonoBehaviour
         spawnedPreviewSlots.Clear();
 
         // --- Inventory Slots ---
-        if (InventoryUI.Instance != null)
+        if (InventoryMainUI.Instance != null)
         {
-            foreach (var slot in InventoryUI.Instance.slots)
+            foreach (var slot in InventoryMainUI.Instance.slots)
             {
                 SpawnPreviewSlot(slot?.item, slot?.amount ?? 0);
             }

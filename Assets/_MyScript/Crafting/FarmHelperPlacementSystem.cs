@@ -19,7 +19,7 @@ public class FarmHelperPlacementSystem : MonoBehaviour
 
     [Header("Refs")]
     [Tooltip("InventoryUI — ถ้าปล่อยว่างจะหาเอง")]
-    public InventoryUI inventoryUI;
+    public InventoryMainUI inventoryUI;
 
     [Header("Placement Config")]
     [Tooltip("Layer ของพื้นดิน / Terrain ที่ Raycast จะโดน")]
@@ -67,7 +67,7 @@ public class FarmHelperPlacementSystem : MonoBehaviour
     void Start()
     {
         mainCam = Camera.main;
-        if (!inventoryUI) inventoryUI = InventoryUI.Instance;
+        if (!inventoryUI) inventoryUI = InventoryMainUI.Instance;
 
         // ซ่อน preview ตั้งต้น
         if (previewObject) previewObject.SetActive(false);

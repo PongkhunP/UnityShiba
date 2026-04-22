@@ -53,9 +53,9 @@ public class ItemMagnet : MonoBehaviour
         }
 
         // 2) ที่เหลือใส่ Inventory
-        if (remaining > 0 && InventoryUI.Instance != null)
+        if (remaining > 0 && InventoryMainUI.Instance != null)
         {
-            InventoryUI.Instance.AddItemToInventory(itemToGive, remaining);
+            InventoryMainUI.Instance.AddItemToInventory(itemToGive, remaining);
         }
 
         Destroy(gameObject);

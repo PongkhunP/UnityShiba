@@ -11,7 +11,7 @@ public class GameManager : MonoBehaviour
     private Transform player;
 
     [FoldoutGroup("Core Refs"), Required, SerializeField]
-    private InventoryUI inventoryUI;
+    private InventoryMainUI inventoryUI;
 
     [FoldoutGroup("Core Refs"), Required, SerializeField]
     private HotbarUI hotbarUI;

@@ -39,7 +39,7 @@ public class PlayerPickup : MonoBehaviour
 
     void Update()
     {
-        if (InventoryUI.IsOpen) return;
+        if (InventoryMainUI.IsOpen) return;
 
         FindNearest();
         UpdatePrompt();
@@ -163,13 +163,13 @@ public class PlayerPickup : MonoBehaviour
         // 2) ที่เหลือใส่ Inventory
         if (remaining > 0)
         {
-            if (InventoryUI.Instance == null)
+            if (InventoryMainUI.Instance == null)
             {
                 Debug.Log("[PlayerPickup] ไม่พบ InventoryUI — เก็บไม่ได้");
                 return;
             }
 
-            bool added = InventoryUI.Instance.AddItemToInventory(pickupable.itemData, remaining);
+            bool added = InventoryMainUI.Instance.AddItemToInventory(pickupable.itemData, remaining);
             if (!added)
             {
                 Debug.Log("[PlayerPickup] Inventory & Hotbar เต็ม — เก็บไม่ได้");

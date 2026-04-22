@@ -60,9 +60,9 @@ public class StorageBoxPlacer : MonoBehaviour
 
     bool HasStorageBoxItem()
     {
-        if (InventoryUI.Instance != null)
+        if (InventoryMainUI.Instance != null)
         {
-            foreach (var slot in InventoryUI.Instance.slots)
+            foreach (var slot in InventoryMainUI.Instance.slots)
                 if (slot != null && slot.item == storageBoxItem && slot.amount > 0)
                     return true;
         }
@@ -124,9 +124,9 @@ public class StorageBoxPlacer : MonoBehaviour
     void ConsumeOneStorageBox()
     {
         // ลองลบจาก Inventory ก่อน
-        if (InventoryUI.Instance != null)
+        if (InventoryMainUI.Instance != null)
         {
-            foreach (var slot in InventoryUI.Instance.slots)
+            foreach (var slot in InventoryMainUI.Instance.slots)
             {
                 if (slot == null || slot.item != storageBoxItem || slot.amount <= 0) continue;
                 slot.DecreaseAmount(1);

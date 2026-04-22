@@ -185,7 +185,7 @@ public class SellBox : MonoBehaviour
         ShowPrompt($"กด [{openKey}] เพื่อเปิดกล่องขาย");
 
         // Lock cursor
-        if (!InventoryUI.IsOpen)
+        if (!InventoryMainUI.IsOpen)
         {
             Cursor.visible   = false;
             Cursor.lockState = CursorLockMode.Locked;
@@ -202,9 +202,9 @@ public class SellBox : MonoBehaviour
         if (inventorySlotsParent == null || inventoryItemButtonPrefab == null) return;
 
         // Inventory slots
-        if (InventoryUI.Instance != null)
+        if (InventoryMainUI.Instance != null)
         {
-            foreach (var slot in InventoryUI.Instance.slots)
+            foreach (var slot in InventoryMainUI.Instance.slots)
             {
                 if (slot == null || slot.item == null || slot.amount <= 0) continue;
                 if (!slot.item.sellable) continue;
@@ -301,7 +301,7 @@ public class SellBox : MonoBehaviour
         }
         else
         {
-            if (InventoryUI.Instance != null)
+            if (InventoryMainUI.Instance != null)
                 RemoveFromInventory(item, amount);
         }
 
@@ -318,8 +318,8 @@ public class SellBox : MonoBehaviour
     {
         _staged.Remove(staged);
         // คืนของกลับ Inventory
-        if (InventoryUI.Instance != null)
-            InventoryUI.Instance.AddItemToInventory(staged.item, staged.amount);
+        if (InventoryMainUI.Instance != null)
+            InventoryMainUI.Instance.AddItemToInventory(staged.item, staged.amount);
     }
 
     // ─── Sell ─────────────────────────────────────────────────────────
@@ -357,7 +357,7 @@ public class SellBox : MonoBehaviour
     {
         // คืนของทั้งหมดใน staged กลับ Inventory
         foreach (var staged in _staged)
-            InventoryUI.Instance?.AddItemToInventory(staged.item, staged.amount);
+            InventoryMainUI.Instance?.AddItemToInventory(staged.item, staged.amount);
         _staged.Clear();
 
         RefreshInventoryPanel();
@@ -370,9 +370,9 @@ public class SellBox : MonoBehaviour
 
     void RemoveFromInventory(ItemSO item, int amount)
     {
-        if (InventoryUI.Instance == null) return;
+        if (InventoryMainUI.Instance == null) return;
         int remaining = amount;
-        foreach (var slot in InventoryUI.Instance.slots)
+        foreach (var slot in InventoryMainUI.Instance.slots)
         {
             if (remaining <= 0) break;
             if (slot == null || slot.item != item) continue;

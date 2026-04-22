@@ -97,7 +97,7 @@ public class StorageUI : MonoBehaviour
 
         if (storagePanel) storagePanel.SetActive(false);
 
-        if (!InventoryUI.IsOpen)
+        if (!InventoryMainUI.IsOpen)
         {
             Cursor.visible   = false;
             Cursor.lockState = CursorLockMode.Locked;
@@ -152,8 +152,8 @@ public class StorageUI : MonoBehaviour
                 var slot = CurrentBox.slots[captureIdx];
                 if (slot.IsEmpty) return;
 
-                if (InventoryUI.Instance != null)
-                    InventoryUI.Instance.AddItemToInventory(slot.item, slot.amount);
+                if (InventoryMainUI.Instance != null)
+                    InventoryMainUI.Instance.AddItemToInventory(slot.item, slot.amount);
 
                 CurrentBox.ClearSlot(captureIdx);
                 ShowFeedback($"นำ {slot.item.itemName} x{slot.amount} ออกจากกล่อง");
@@ -172,9 +172,9 @@ public class StorageUI : MonoBehaviour
         if (inventoryGrid == null || inventorySlotPrefab == null) return;
 
         // Inventory slots
-        if (InventoryUI.Instance != null)
+        if (InventoryMainUI.Instance != null)
         {
-            foreach (var slot in InventoryUI.Instance.slots)
+            foreach (var slot in InventoryMainUI.Instance.slots)
             {
                 if (slot == null || slot.IsEmpty) continue;
                 SpawnPlayerSlot(slot.item, slot.amount, fromHotbar: false);
@@ -240,9 +240,9 @@ public class StorageUI : MonoBehaviour
 
     void RemoveFromInventory(ItemSO item, int amount)
     {
-        if (InventoryUI.Instance == null) return;
+        if (InventoryMainUI.Instance == null) return;
         int rem = amount;
-        foreach (var slot in InventoryUI.Instance.slots)
+        foreach (var slot in InventoryMainUI.Instance.slots)
         {
             if (rem <= 0) break;
             if (slot == null || slot.item != item) continue;

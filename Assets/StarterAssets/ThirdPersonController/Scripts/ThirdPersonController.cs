@@ -1,4 +1,4 @@
-﻿using FIMSpace;
+﻿// using FIMSpace;
 using UnityEngine;
 #if ENABLE_INPUT_SYSTEM 
 using UnityEngine.InputSystem;
@@ -295,15 +295,15 @@ namespace StarterAssets
                 _animator.SetFloat(_animIDSpeed, _animationBlend);
                 _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
             }
-            leaning.User_DeliverIsAccelerating(_input.move != Vector2.zero);
-            leaning.User_DeliverIsGrounded(Grounded);
-            leaning.User_DeliverAccelerationSpeed(_speed);
+            // leaning.User_DeliverIsAccelerating(_input.move != Vector2.zero);
+            // leaning.User_DeliverIsGrounded(Grounded);
+            // leaning.User_DeliverAccelerationSpeed(_speed);
         }
 
         float directBlendDelay = 0f;
         [Range(0f, 1f)]
         public float DirectMoveBlend = 0f;
-        public LeaningAnimator leaning;
+        // public LeaningAnimator leaning;
 
         private void JumpAndGravity()
         {
@@ -417,9 +417,9 @@ namespace StarterAssets
         private void HandleCursorToggle()
         {
             // ตรวจว่า InventoryUI พร้อมใช้ และเปิดอยู่ไหม
-            if (InventoryUI.Instance != null)
+            if (InventoryMainUI.Instance != null)
             {
-                var inv = InventoryUI.Instance;
+                var inv = InventoryMainUI.Instance;
                 bool inventoryOpen = inv != null && inv.inventoryPanel != null && inv.inventoryPanel.activeSelf;
                 Cursor.visible = inventoryOpen;
                 Cursor.lockState = inventoryOpen ? CursorLockMode.None : CursorLockMode.Locked;

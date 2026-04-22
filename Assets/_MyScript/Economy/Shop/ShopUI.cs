@@ -349,7 +349,7 @@ public class ShopUI : MonoBehaviour
             return;
         }
 
-        bool added = InventoryUI.Instance != null && InventoryUI.Instance.AddItemToInventory(item, amount);
+        bool added = InventoryMainUI.Instance != null && InventoryMainUI.Instance.AddItemToInventory(item, amount);
         if (!added)
         {
             wallet.Add(total);

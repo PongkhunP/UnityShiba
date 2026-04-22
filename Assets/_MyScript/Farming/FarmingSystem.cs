@@ -42,7 +42,7 @@ public class FarmingSystem : SerializedMonoBehaviour
     public void ChopTree(ItemSO axeItem, ChoppableCut_Tree tree)
     {
         if (!axeItem || !tree) return;
-        // ãªéÇÑ´ÃÐÂÐáºº FlatPos à¾×èÍ»éÍ§¡Ñ¹»Ñ­ËÒµÑÇÅÐ¤ÃÂ×¹ÍÂÙèÊÙ§/µèÓ¡ÇèÒµé¹äÁé
+        // ï¿½ï¿½ï¿½Ñ´ï¿½ï¿½ï¿½ï¿½áºº FlatPos ï¿½ï¿½ï¿½Í»ï¿½Í§ï¿½Ñ¹ï¿½Ñ­ï¿½Òµï¿½ï¿½ï¿½Ð¤ï¿½ï¿½×¹ï¿½ï¿½ï¿½ï¿½ï¿½Ù§/ï¿½ï¿½Ó¡ï¿½ï¿½Òµï¿½ï¿½ï¿½ï¿½
         if (playerTransform && Vector3.Distance(FlatPos(playerTransform.position), FlatPos(tree.transform.position)) > interactRange) return;
 
         float cost = Mathf.Max(0, axeItem.energyCost);
@@ -57,7 +57,7 @@ public class FarmingSystem : SerializedMonoBehaviour
     public void ApplyItemOnTile(ItemSO item, SoilTile tile)
     {
         if (!item || !tile) return;
-        // ãªéÇÑ´ÃÐÂÐáºº FlatPos 
+        // ï¿½ï¿½ï¿½Ñ´ï¿½ï¿½ï¿½ï¿½áºº FlatPos 
         if (playerTransform && Vector3.Distance(FlatPos(playerTransform.position), FlatPos(tile.transform.position)) > interactRange) return;
 
         switch (item.category)
@@ -72,13 +72,13 @@ public class FarmingSystem : SerializedMonoBehaviour
         SoilTile tileToHarvest = specificTile;
         if (tileToHarvest == null) if (!TryHitSoil(out tileToHarvest)) return;
 
-        // ãªéÇÑ´ÃÐÂÐáºº FlatPos 
+        // ï¿½ï¿½ï¿½Ñ´ï¿½ï¿½ï¿½ï¿½áºº FlatPos 
         if (playerTransform && Vector3.Distance(FlatPos(playerTransform.position), FlatPos(tileToHarvest.transform.position)) > interactRange) return;
 
         bool AddToInventory(ItemSO item, int amount)
         {
             bool success = false;
-            if (InventoryUI.Instance && InventoryUI.Instance.AddItemToInventory(item, amount)) success = true;
+            if (InventoryMainUI.Instance && InventoryMainUI.Instance.AddItemToInventory(item, amount)) success = true;
             else if (HotbarUI.Instance && HotbarUI.Instance.AddItemToFirstEmptySlot(item, amount)) success = true;
             if (success && harvestSFX != null) PlaySoundWithMixer(harvestSFX, tileToHarvest.transform.position, 0f, 1f);
             return success;
@@ -119,18 +119,18 @@ public class FarmingSystem : SerializedMonoBehaviour
     // ===========================================
     void PlayActionEffects(ItemSO item, Vector3 targetPos)
     {
-        // 1. µÑé§¨Ø´ÂÔ§·Õè¤ÇÒÁÊÙ§ 500 àÁµÃ (·Õè¾Ô¡Ñ´ X, Z à´ÔÁ)
+        // 1. ï¿½ï¿½é§¨Ø´ï¿½Ô§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù§ 500 ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½Ô¡Ñ´ X, Z ï¿½ï¿½ï¿½)
         Vector3 rayOrigin = new Vector3(targetPos.x, 500f, targetPos.z);
         Vector3 spawnPos = targetPos;
         RaycastHit hit;
 
-        // 2. ÂÔ§ Raycast Å§ÁÒ (Vector3.down) ÃÐÂÐ 1000 àÁµÃ
+        // 2. ï¿½Ô§ Raycast Å§ï¿½ï¿½ (Vector3.down) ï¿½ï¿½ï¿½ï¿½ 1000 ï¿½ï¿½ï¿½ï¿½
         if (Physics.Raycast(rayOrigin, Vector3.down, out hit, 1000f, ~0, QueryTriggerInteraction.Ignore))
         {
             spawnPos = hit.point + Vector3.up * effectHeightOffset;
         }
 
-        // --- ÊèÇ¹ÊÃéÒ§ VFX ---
+        // --- ï¿½ï¿½Ç¹ï¿½ï¿½ï¿½Ò§ VFX ---
         if (item.actionVFX)
         {
             GameObject vfxObj = Instantiate(item.actionVFX, spawnPos, Quaternion.identity);
@@ -163,7 +163,7 @@ public class FarmingSystem : SerializedMonoBehaviour
     }
 
     // ===========================================
-    // [ÍÑ»à¡Ã´] µÑ´á¡¹ Y ·Ôé§ áÅÐà¾ÔèÁ¤ÇÒÁÂÒÇàÅà«ÍÃìà»ç¹ 1000f
+    // [ï¿½Ñ»ï¿½Ã´] ï¿½Ñ´á¡¹ Y ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 1000f
     // ===========================================
     private Vector3 FlatPos(Vector3 pos)
     {
@@ -175,13 +175,13 @@ public class FarmingSystem : SerializedMonoBehaviour
         tile = null;
         Ray ray = cam.ScreenPointToRay(Input.mousePosition);
 
-        // ÍÑ»à¡Ã´¤ÇÒÁÂÒÇàÅà«ÍÃìà»ç¹ 1000f
+        // ï¿½Ñ»ï¿½Ã´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 1000f
         if (Physics.Raycast(ray, out var hit, 1000f, soilMask))
         {
-            // ãªé FlatPos ÇÑ´ÃÐÂÐ
+            // ï¿½ï¿½ FlatPos ï¿½Ñ´ï¿½ï¿½ï¿½ï¿½
             if (playerTransform == null || Vector3.Distance(FlatPos(playerTransform.position), FlatPos(hit.point)) <= interactRange)
             {
-                // ãªé GetComponentInParent à¼×èÍ¤ÅÔ¡â´¹âÁà´ÅÅÙ¡
+                // ï¿½ï¿½ GetComponentInParent ï¿½ï¿½ï¿½Í¤ï¿½Ô¡â´¹ï¿½ï¿½ï¿½ï¿½ï¿½Ù¡
                 tile = hit.collider.GetComponentInParent<SoilTile>();
             }
         }
@@ -193,13 +193,13 @@ public class FarmingSystem : SerializedMonoBehaviour
         tree = null;
         Ray ray = cam.ScreenPointToRay(Input.mousePosition);
 
-        // ÍÑ»à¡Ã´¤ÇÒÁÂÒÇàÅà«ÍÃìà»ç¹ 1000f
+        // ï¿½Ñ»ï¿½Ã´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 1000f
         if (Physics.Raycast(ray, out var hit, 1000f, treeMask))
         {
-            // ãªé FlatPos ÇÑ´ÃÐÂÐ
+            // ï¿½ï¿½ FlatPos ï¿½Ñ´ï¿½ï¿½ï¿½ï¿½
             if (playerTransform == null || Vector3.Distance(FlatPos(playerTransform.position), FlatPos(hit.point)) <= interactRange)
             {
-                // ãªé GetComponentInParent à¼×èÍ¤ÅÔ¡â´¹âÁà´ÅÅÙ¡
+                // ï¿½ï¿½ GetComponentInParent ï¿½ï¿½ï¿½Í¤ï¿½Ô¡â´¹ï¿½ï¿½ï¿½ï¿½ï¿½Ù¡
                 tree = hit.collider.GetComponentInParent<ChoppableCut_Tree>();
             }
         }

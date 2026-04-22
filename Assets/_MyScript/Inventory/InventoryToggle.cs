@@ -16,7 +16,7 @@ public class InventoryToggle : MonoBehaviour
     void Start()
     {
         // ถ้ามี InventoryUI อยู่ใน Scene ให้ disable ตัวเองทันที (ป้องกัน toggle ซ้ำ)
-        if (InventoryUI.Instance != null)
+        if (InventoryMainUI.Instance != null)
         {
             if (enableManualToggle)
                 Debug.LogWarning("[InventoryToggle] ตรวจพบ InventoryUI — ปิด InventoryToggle เพื่อป้องกัน toggle ซ้ำ");
@@ -34,8 +34,8 @@ public class InventoryToggle : MonoBehaviour
         // เผื่อไม่มี InventoryUI — ควบคุม panel ตรง ๆ
         if (Input.GetKeyDown(KeyCode.I))
         {
-            if (InventoryUI.Instance != null)
-                InventoryUI.Instance.Toggle();
+            if (InventoryMainUI.Instance != null)
+                InventoryMainUI.Instance.Toggle();
             else if (inventoryPanel != null)
                 inventoryPanel.SetActive(!inventoryPanel.activeSelf);
         }

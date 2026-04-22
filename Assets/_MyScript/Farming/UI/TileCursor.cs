@@ -48,7 +48,7 @@ public class TileCursor : MonoBehaviour
 
     private void Update()
     {
-        if (InventoryUI.IsOpen) { if (cursorVisual) cursorVisual.SetActive(false); return; }
+        if (InventoryMainUI.IsOpen) { if (cursorVisual) cursorVisual.SetActive(false); return; }
         UpdateCursorPosition();
     }
 

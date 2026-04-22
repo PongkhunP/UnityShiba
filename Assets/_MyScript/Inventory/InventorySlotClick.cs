@@ -1,133 +1,133 @@
-using UnityEngine;
-using UnityEngine.EventSystems;
+// using UnityEngine;
+// using UnityEngine.EventSystems;
 
-public class InventorySlotClick : MonoBehaviour, IPointerClickHandler
-{
-    public InventorySlot slot;
+// public class InventorySlotClick : MonoBehaviour, IPointerClickHandler
+// {
+//     public InventorySlot slot;
 
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        if (slot == null) return;
+//     public void OnPointerClick(PointerEventData eventData)
+//     {
+//         if (slot == null) return;
 
-        var drag = InventoryDragHandler.Instance;
+//         var drag = InventoryDragHandler.Instance;
 
-        // =========================
-        // A) Inventory -> Inventory
-        // =========================
-        if (drag != null && drag.IsDragging && drag.draggedFromSlot != null)
-        {
-            InventorySlot from = drag.draggedFromSlot;
-            InventorySlot to = slot;
+//         // =========================
+//         // A) Inventory -> Inventory
+//         // =========================
+//         if (drag != null && drag.IsDragging && drag.draggedFromSlot != null)
+//         {
+//             InventorySlot from = drag.draggedFromSlot;
+//             InventorySlot to = slot;
 
-            if (from == null || from == to)
-            {
-                drag.EndDrag();
-                return;
-            }
+//             if (from == null || from == to)
+//             {
+//                 drag.EndDrag();
+//                 return;
+//             }
 
-            // ªèÍ§»ÅÒÂÇèÒ§ -> ÂéÒÂ·Ñé§¡Í§
-            if (to.item == null)
-            {
-                to.SetItem(from.item, from.amount);
-                from.Clear();                    // << ãªéª×èÍãËÁè
-                drag.EndDrag();
-                return;
-            }
+//             // ï¿½ï¿½Í§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò§ -> ï¿½ï¿½ï¿½Â·ï¿½é§¡Í§
+//             if (to.item == null)
+//             {
+//                 to.SetItem(from.item, from.amount);
+//                 from.Clear();                    // << ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+//                 drag.EndDrag();
+//                 return;
+//             }
 
-            // ÃÇÁ stack (ª¹Ô´à´ÕÂÇ¡Ñ¹ + stack ä´é)
-            if (to.item == from.item && to.item.isStackable)
-            {
-                int max = Mathf.Max(1, to.item.maxStack);
-                int total = to.amount + from.amount;
+//             // ï¿½ï¿½ï¿½ stack (ï¿½ï¿½Ô´ï¿½ï¿½ï¿½Ç¡Ñ¹ + stack ï¿½ï¿½)
+//             if (to.item == from.item && to.item.isStackable)
+//             {
+//                 int max = Mathf.Max(1, to.item.maxStack);
+//                 int total = to.amount + from.amount;
 
-                if (total <= max)
-                {
-                    to.amount = total;
-                    to.UpdateUI();              // << ãªéª×èÍãËÁè
-                    from.Clear();               // << ãªéª×èÍãËÁè
-                }
-                else
-                {
-                    to.amount = max;
-                    from.amount = total - max;
-                    from.UpdateUI();            // << ãªéª×èÍãËÁè
-                    to.UpdateUI();              // << ãªéª×èÍãËÁè
-                }
+//                 if (total <= max)
+//                 {
+//                     to.amount = total;
+//                     to.UpdateUI();              // << ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+//                     from.Clear();               // << ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+//                 }
+//                 else
+//                 {
+//                     to.amount = max;
+//                     from.amount = total - max;
+//                     from.UpdateUI();            // << ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+//                     to.UpdateUI();              // << ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+//                 }
 
-                drag.EndDrag();
-                return;
-            }
+//                 drag.EndDrag();
+//                 return;
+//             }
 
-            // ¤¹ÅÐª¹Ô´ -> ÊÅÑº
-            ItemSO tempItem = to.item;
-            int tempAmount = to.amount;
+//             // ï¿½ï¿½ï¿½Ðªï¿½Ô´ -> ï¿½ï¿½Ñº
+//             ItemSO tempItem = to.item;
+//             int tempAmount = to.amount;
 
-            to.SetItem(from.item, from.amount);
+//             to.SetItem(from.item, from.amount);
 
-            if (tempItem != null) from.SetItem(tempItem, tempAmount);
-            else from.Clear();
+//             if (tempItem != null) from.SetItem(tempItem, tempAmount);
+//             else from.Clear();
 
-            drag.EndDrag();
-            return;
-        }
+//             drag.EndDrag();
+//             return;
+//         }
 
-        // =========================
-        // B) Hotbar -> Inventory
-        // =========================
-        if (drag != null && drag.IsDragging && drag.draggedFromHotbar != null)
-        {
-            HotbarSlot hb = drag.draggedFromHotbar;
-            if (hb.item == null) { drag.EndDrag(); return; }
+//         // =========================
+//         // B) Hotbar -> Inventory
+//         // =========================
+//         if (drag != null && drag.IsDragging && drag.draggedFromHotbar != null)
+//         {
+//             HotbarSlot hb = drag.draggedFromHotbar;
+//             if (hb.item == null) { drag.EndDrag(); return; }
 
-            // ¶éÒà»ç¹ Shortcut (amount == 0) äÁèÍ¹Ø­ÒµãËéÊÃéÒ§¢Í§ã¹ inventory
-            if (!hb.HasStack) { drag.EndDrag(); return; }
+//             // ï¿½ï¿½ï¿½ï¿½ï¿½ Shortcut (amount == 0) ï¿½ï¿½ï¿½Í¹Ø­Òµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò§ï¿½Í§ï¿½ inventory
+//             if (!hb.HasStack) { drag.EndDrag(); return; }
 
-            ItemSO drop = hb.item;
-            int move = hb.amount;
+//             ItemSO drop = hb.item;
+//             int move = hb.amount;
 
-            if (slot.item == null)
-            {
-                int setAmount = drop.isStackable ? Mathf.Min(move, drop.maxStack) : 1;
-                slot.SetItem(drop, setAmount);
+//             if (slot.item == null)
+//             {
+//                 int setAmount = drop.isStackable ? Mathf.Min(move, drop.maxStack) : 1;
+//                 slot.SetItem(drop, setAmount);
 
-                hb.amount -= setAmount;
-                if (hb.amount <= 0) hb.Clear();
-                else hb.UpdateUI();
+//                 hb.amount -= setAmount;
+//                 if (hb.amount <= 0) hb.Clear();
+//                 else hb.UpdateUI();
 
-                drag.EndDrag();
-                return;
-            }
+//                 drag.EndDrag();
+//                 return;
+//             }
 
-            // ÃÇÁ stack
-            if (slot.item == drop && drop.isStackable)
-            {
-                int max = Mathf.Max(1, drop.maxStack);
-                int canAdd = Mathf.Min(move, max - slot.amount);
-                if (canAdd > 0)
-                {
-                    slot.amount += canAdd;
-                    slot.UpdateUI();
+//             // ï¿½ï¿½ï¿½ stack
+//             if (slot.item == drop && drop.isStackable)
+//             {
+//                 int max = Mathf.Max(1, drop.maxStack);
+//                 int canAdd = Mathf.Min(move, max - slot.amount);
+//                 if (canAdd > 0)
+//                 {
+//                     slot.amount += canAdd;
+//                     slot.UpdateUI();
 
-                    hb.amount -= canAdd;
-                    if (hb.amount <= 0) hb.Clear();
-                    else hb.UpdateUI();
-                }
+//                     hb.amount -= canAdd;
+//                     if (hb.amount <= 0) hb.Clear();
+//                     else hb.UpdateUI();
+//                 }
 
-                drag.EndDrag();
-                return;
-            }
+//                 drag.EndDrag();
+//                 return;
+//             }
 
-            // ¤¹ÅÐª¹Ô´ -> äÁèÊÅÑº (ËÅÕ¡àÅÕèÂ§µÃÃ¡Ð«Ñº«éÍ¹)
-            drag.EndDrag();
-            return;
-        }
+//             // ï¿½ï¿½ï¿½Ðªï¿½Ô´ -> ï¿½ï¿½ï¿½ï¿½ï¿½Ñº (ï¿½ï¿½Õ¡ï¿½ï¿½ï¿½ï¿½Â§ï¿½ï¿½Ã¡Ð«Ñºï¿½ï¿½Í¹)
+//             drag.EndDrag();
+//             return;
+//         }
 
-        // =========================
-        // C) àÃÔèÁÅÒ¡¨Ò¡ªèÍ§ Inventory
-        // =========================
-        if (slot.item != null && drag != null && !drag.IsDragging)
-        {
-            drag.BeginDrag(slot);
-        }
-    }
-}
+//         // =========================
+//         // C) ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò¡ï¿½Ò¡ï¿½ï¿½Í§ Inventory
+//         // =========================
+//         if (slot.item != null && drag != null && !drag.IsDragging)
+//         {
+//             drag.BeginDrag(slot);
+//         }
+//     }
+// }

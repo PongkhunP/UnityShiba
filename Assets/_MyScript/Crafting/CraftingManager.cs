@@ -18,7 +18,7 @@ public class CraftingManager : MonoBehaviour
     public CraftingRecipeSO[] allRecipes;
 
     [Header("Refs")]
-    public InventoryUI inventory;
+    public InventoryMainUI inventory;
 
     [Header("Runtime — สูตรที่ปลดล็อกแล้ว")]
     [SerializeField] private List<string> learnedRecipes = new List<string>();
@@ -41,7 +41,7 @@ public class CraftingManager : MonoBehaviour
         }
         Instance = this;
 
-        if (!inventory) inventory = InventoryUI.Instance;
+        if (!inventory) inventory = InventoryMainUI.Instance;
     }
 
     // ================================================================
@@ -87,7 +87,7 @@ public class CraftingManager : MonoBehaviour
     /// <summary>นับจำนวนไอเท็มใน Inventory + Hotbar</summary>
     public int CountItem(ItemSO item)
     {
-        if (inventory == null) inventory = InventoryUI.Instance;
+        if (inventory == null) inventory = InventoryMainUI.Instance;
 
         int count = 0;
 

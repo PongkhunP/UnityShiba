@@ -89,7 +89,7 @@ public class FishingSystem : MonoBehaviour
     {
         // ไม่รับ input ถ้าไม่มี zone / กำลังตกอยู่ / เปิด inventory
         if (_currentZone == null || _isFishing) return;
-        if (InventoryUI.IsOpen) return;
+        if (InventoryMainUI.IsOpen) return;
 
         if (Input.GetKeyDown(fishKey))
             BeginFishing();
@@ -184,8 +184,8 @@ public class FishingSystem : MonoBehaviour
             bool added = false;
             if (HotbarUI.Instance != null)
                 added = HotbarUI.Instance.AddItemToFirstEmptySlot(entry.fish, amount);
-            if (!added && InventoryUI.Instance != null)
-                InventoryUI.Instance.AddItemToInventory(entry.fish, amount);
+            if (!added && InventoryMainUI.Instance != null)
+                InventoryMainUI.Instance.AddItemToInventory(entry.fish, amount);
 
             string bonus = result == FishingMiniGameUI.CatchResult.Perfect ? " ✨ Perfect!" : "";
             ShowCatchResult($"ได้ {entry.fish.itemName} x{amount}{bonus}", Color.green);
