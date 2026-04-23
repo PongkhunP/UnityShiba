@@ -5,6 +5,7 @@ public class GameDataManager : MonoBehaviour
 {
     public static GameDataManager Singleton { get; private set; }
     public GameState CurrentState { get; private set; }
+    public ItemDatabases itemDatabases;
     public void Start()
     {
         if (Singleton == null)

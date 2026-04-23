@@ -60,6 +60,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e9141d3e43b91c45835a49d23e3b000, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameDataManager
+  itemDatabases: {fileID: 11400000, guid: 3bf448c076307bf4a98b2b95cbbfa955, type: 2}
 --- !u!114 &989201259833624338
 MonoBehaviour:
   m_ObjectHideFlags: 0
