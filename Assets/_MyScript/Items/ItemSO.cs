@@ -3,17 +3,15 @@ using UnityEngine;
 public enum ItemCategory { Tool, Seed, Consumable, CraftingMaterial, FarmHelper }
 public enum ToolAction { None, Hoe, Water, Axe }
 
-/// <summary>หมวดหมู่สำหรับแสดงใน Day Summary — ตั้งค่าใน ItemSO แต่ละชิ้น</summary>
 public enum SellCategory { Farming, Fishing, Ore, Other }
 
 [CreateAssetMenu(menuName = "Items/Item")]
 public class ItemSO : ScriptableObject
 {
-    // ... (����������� ����ͧź) ...
-    // ���� Enum ��ҧ����ͤ�Ѻ
 
     [Header("Info")]
     public string itemName;
+    public int itemID;
     public Sprite icon;
 
     [Header("3D Visuals")]
