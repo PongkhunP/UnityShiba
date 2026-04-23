@@ -4,10 +4,8 @@ using UnityEngine;
 // Starter Assets
 using StarterAssets;
 
-// Cinemachine (�����)
 using Unity.Cinemachine;
 
-// ����� Input System ���� ������� Scripting Define Symbol: ENABLE_INPUT_SYSTEM
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -18,14 +16,14 @@ public class InventoryMainUI : MonoBehaviour
     public InventorySlot[] slots;
 
     [Header("UI Root")]
-    public GameObject inventoryPanel;          // �ҡ GameObject �����˹�ҡҡ�Թ�ǹ������� (�� InventoryPanel)
+    public GameObject inventoryPanel;          
 
     [Header("Freeze Control while open")]
-    public Transform player;                   // �ҡ Player (��Ƿ���� ThirdPersonController/StarterAssetsInputs)
-    public bool unlockCursorOnOpen = true;     // �Դ�����������Դ�Թ�ǹ��
-    public Behaviour[] extraDisable;           // �����ʤ�Ի�� custom ����ûԴ�͹�Դ UI
+    public Transform player;                  
+    public bool unlockCursorOnOpen = true;     
+    public Behaviour[] extraDisable;          
 
-    [Header("(Optional) ��ش�������͹�Դ")]
+    [Header("(Optional)")]
     public bool pauseWithTimeScale = false;
 
     public static InventoryMainUI Instance { get; private set; }
@@ -38,9 +36,9 @@ public class InventoryMainUI : MonoBehaviour
     void Awake()
     {
         Instance = this;
-        if (inventoryPanel) inventoryPanel.SetActive(false);
+        // if (inventoryPanel) inventoryPanel.SetActive(false);
 
-        BuildDisableList();            // �������๹����лԴ�����ǧ˹��
+        BuildDisableList();            
         _wasEnabled = new bool[_toDisable.Count];
     }
 
@@ -50,50 +48,40 @@ public class InventoryMainUI : MonoBehaviour
         if (IsOpen && Input.GetKeyDown(KeyCode.Escape)) Close();
     }
 
-    // ---------------------------------------
-    // �Ǻ�������๹����� "�Դ�Ѻ" �͹�Դ UI
-    // ---------------------------------------
     void BuildDisableList()
     {
         _toDisable.Clear();
 
-        // -------- ��� Player --------
         if (player != null)
         {
-            var tpc = player.GetComponent<ThirdPersonController>();
+            var tpc = player.GetComponent<PlayerController>();
             if (tpc) _toDisable.Add(tpc);
 
             var sai = player.GetComponent<StarterAssetsInputs>();
             if (sai) _toDisable.Add(sai);
 
 #if ENABLE_INPUT_SYSTEM
-            // �Դ PlayerInput = �Ѵ�Թ�ص������
             var pi = player.GetComponent<PlayerInput>();
             if (pi) _toDisable.Add(pi);
 #endif
-            // NOTE: CharacterController ����� Behaviour ����Դ/�Դ�� �֧������ŧ��ʵ�
         }
-
-        // -------- ��觡��ͧ/Cinemachine --------
         var cam = Camera.main;
         if (cam)
         {
             var brain = cam.GetComponent<CinemachineBrain>();
             if (brain) _toDisable.Add(brain);
 
-            var cip = cam.GetComponent<CinemachineInputProvider>();
+            var cip = cam.GetComponent<CinemachineInputAxisController>();
             if (cip) _toDisable.Add(cip);
         }
 
-        // �ó��ҧ InputProvider ��麹 Virtual Camera
-        var vcam = FindAnyObjectByType<CinemachineVirtualCamera>();
+        var vcam = FindAnyObjectByType<CinemachineInputAxisController>();
         if (vcam)
         {
-            var cip2 = vcam.GetComponent<CinemachineInputProvider>();
+            var cip2 = vcam.GetComponent<CinemachineInputAxisController>();
             if (cip2) _toDisable.Add(cip2);
         }
 
-        // -------- ���÷����ҡ�����ͧ --------
         if (extraDisable != null)
         {
             foreach (var b in extraDisable)
@@ -118,12 +106,10 @@ public class InventoryMainUI : MonoBehaviour
 
         if (inventoryPanel) inventoryPanel.SetActive(true);
 
-        // �����ա�û�Ѻ��ҧ�ԧ�͹�ѹ
         if (_toDisable.Count == 0) BuildDisableList();
         if (_wasEnabled == null || _wasEnabled.Length != _toDisable.Count)
             _wasEnabled = new bool[_toDisable.Count];
 
-        // �Դ����๹��Ǻ����������͹���/���ͧ
         for (int i = 0; i < _toDisable.Count; i++)
         {
             var b = _toDisable[i];
@@ -152,7 +138,7 @@ public class InventoryMainUI : MonoBehaviour
 
         if (inventoryPanel) inventoryPanel.SetActive(false);
 
-        // �Դ����๹���Ѻ���ʶҹ����
+
         for (int i = 0; i < _toDisable.Count; i++)
         {
             var b = _toDisable[i];
@@ -171,17 +157,12 @@ public class InventoryMainUI : MonoBehaviour
         }
     }
 
-    // ---------------------------------------
-    // �ѧ��ѹ���: �������� + ��� stack
-    // (���¡�ҡ pickup ���)
-    // ---------------------------------------
     public bool AddItemToInventory(ItemSO item) => AddItemToInventory(item, 1);
 
     public bool AddItemToInventory(ItemSO item, int amount)
     {
         if (item == null || amount <= 0) return false;
 
-        // 1) ����Ѻ��ͧ�����͹ ��� stack ��
         if (item.isStackable)
         {
             foreach (var slot in slots)
@@ -193,7 +174,7 @@ public class InventoryMainUI : MonoBehaviour
                     if (canAdd > 0)
                     {
                         slot.amount += canAdd;
-                        slot.UpdateAmountText(); // ���Ը�����ͧ�س
+                        slot.UpdateAmountText();
                         amount -= canAdd;
                         if (amount <= 0) return true;
                     }
@@ -201,7 +182,6 @@ public class InventoryMainUI : MonoBehaviour
             }
         }
 
-        // 2) �Ҫ�ͧ��ҧ
         foreach (var slot in slots)
         {
             if (slot.item == null)

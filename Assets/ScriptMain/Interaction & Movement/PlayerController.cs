@@ -96,8 +96,6 @@ public class PlayerController : NetworkBehaviour
     {
         isGrounded = controller.isGrounded;
         if (isGrounded && velocity.y < 0f) velocity.y = -2f;
-
-        Debug.Log("Move Input: " + InputHandler.Singleton.MoveInput);
  
         Vector2 input = InputHandler.Singleton.MoveInput;
 
