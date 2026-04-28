@@ -12,11 +12,11 @@ public class CraftingManager : NetworkBehaviour
     public event Action<string> OnRecipeLearned;
     void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(this);
-            return;
-        }
+        // if (Instance != null && Instance != this)
+        // {
+        //     Destroy(this);
+        //     return;
+        // }
         Instance = this;
     }
 
@@ -24,6 +24,7 @@ public class CraftingManager : NetworkBehaviour
     public void RequestAvailableRecipesRpc(RecipeCategory category, RpcParams rpcParams = default)
     {
         ulong clientId = rpcParams.Receive.SenderClientId;
+        Debug.Log($"Received RequestAvailableRecipesRpc from client {clientId} for category {category}");
 
         if (NetworkManager.Singleton.ConnectedClients.TryGetValue(clientId, out var networkClient))
         {
@@ -42,6 +43,14 @@ public class CraftingManager : NetworkBehaviour
             }
 
             int actualLevel = statManager.GetLevelForCategory(category);
+
+            Debug.Log($"Player {clientId} has level {actualLevel} in category {category}. Retrieving available recipes.");
+
+            if(GameDataManager.Instance == null || GameDataManager.Instance.craftRecipeDatabase == null)
+            {
+                Debug.LogError("GameDataManager or craftRecipeDatabase is null. Cannot retrieve recipes.");
+                return;
+            }
 
             List<CraftingRecipeSO> available = GameDataManager.Instance.craftRecipeDatabase.GetAvailableRecipes(actualLevel, category);
 

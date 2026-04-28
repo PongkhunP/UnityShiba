@@ -18,6 +18,8 @@ public class GameDataManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+        itemDatabases.Initialize();
+        craftRecipeDatabase.Initialize();
     }
 
     public void SetGameState(GameState gameState)

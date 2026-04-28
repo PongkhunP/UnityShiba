@@ -4,7 +4,6 @@ public class StatManager : NetworkBehaviour
 {
     [Header("Stat")]
     [SerializeField] public PlayerStatDataSO statsTemplate;
-    [SerializeField] private KnowledgeStatDataSignal knowledgeSignal;
 
     public NetworkList<NetworkStat> AllStats;
     public NetworkList<NetworkKnowledgeStat> KnowledgeLevels;
@@ -50,7 +49,7 @@ public class StatManager : NetworkBehaviour
             {
                 NetworkManager.SceneManager.OnSceneEvent += OnSceneEvent;
             }
-            knowledgeSignal.UpdateKnowledgeSource(this);
+            // knowledgeSignal.UpdateKnowledgeSource(this);
         }
     }
 

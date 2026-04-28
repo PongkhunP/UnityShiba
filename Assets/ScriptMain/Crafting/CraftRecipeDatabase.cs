@@ -30,6 +30,7 @@ public class CraftRecipeDatabase : ScriptableObject
         // For Recipe Categories
         foreach (var group in allRecipes)
         {
+            Debug.Log($"Processing recipe group for category {group.category} with {group.recipes?.Count ?? 0} recipes.");
             if (group.recipes == null) continue;
 
             // 1. Map the category to the list
@@ -68,11 +69,13 @@ public class CraftRecipeDatabase : ScriptableObject
 
         if (recipeLookupCategories.TryGetValue(category, out var recipeList))
         {
+            Debug.Log($"Found {recipeList.Count} recipes in category {category}. Filtering by workbench level {workbenchLevel}.");
             return recipeList
                 .Select(r => r.recipe)
                 .Where(r => !r.requiresLearning && r.minWorkbenchLevel <= workbenchLevel)
                 .ToList();
         }
+        Debug.LogWarning($"No recipes found for category {category}!");
 
         return new List<CraftingRecipeSO>();
     }
