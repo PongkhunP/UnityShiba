@@ -32,16 +32,14 @@ public class InventoryData : NetworkBehaviour
         // This turns a "count 0" list into a "count 16" list of empty items.
         if (InventoryItems.Count == 0)
         {
-            for (int i = 0; i < 16; i++)
+            for (int i = 0; i < inventorySize; i++)
             {
                 InventoryItems.Add(new NetworkItems { ItemID = 0, Amount = 0 });
             }
         }
 
-        // 2. Now, inject your MOCK DATA for testing.
-        // Since we now have 16 slots, we use the [index] to replace them.
         InventoryItems[0] = new NetworkItems { ItemID = 1, Amount = 1 }; // e.g. Sword
-        InventoryItems[1] = new NetworkItems { ItemID = 2, Amount = 5 }; // e.g. Potions
+        InventoryItems[1] = new NetworkItems { ItemID = 2, Amount = 4 }; // e.g. Potions
 
         Debug.Log("Server: Inventory Initialized with Mock Data.");
     }
@@ -76,12 +74,81 @@ public class InventoryData : NetworkBehaviour
     }
 
     [ServerRpc]
+    public void RequestPutItemServerRpc(int fromIndex, int toIndex, int moveAmount)
+    {
+        if (fromIndex < 0 || fromIndex >= InventoryItems.Count ||
+        toIndex < 0 || toIndex >= InventoryItems.Count ||
+        fromIndex == toIndex) return;
+
+        NetworkItems fromData = InventoryItems[fromIndex];
+        NetworkItems toData = InventoryItems[toIndex];
+
+        moveAmount = Mathf.Clamp(moveAmount, 0, fromData.Amount);
+        if (moveAmount <= 0 || fromData.ItemID == 0) return;
+
+        if (toData.ItemID != 0 && toData.ItemID != fromData.ItemID)
+        {
+            if (moveAmount < fromData.Amount)
+            {
+                Debug.Log("Rejecting partial-stack swap to prevent item overlap.");
+                return; // Server does nothing, Client will eventually roll back
+            }
+            if (moveAmount == fromData.Amount)
+            {
+                Debug.Log($"Swapping slot {fromIndex} with {toIndex}");
+                InventoryItems[fromIndex] = toData;
+                InventoryItems[toIndex] = fromData;
+            }
+            return;
+        }
+
+        ItemSO itemSO = GameDataManager.Instance.itemDatabases.GetItemByID(fromData.ItemID);
+
+        if (itemSO != null && itemSO.isStackable)
+        {
+            int maxStack = Mathf.Max(1, itemSO.maxStack);
+            int canAdd = maxStack - toData.Amount;
+            Debug.Log($"Attempting to stack ItemID {fromData.ItemID} from Slot {fromIndex} to Slot {toIndex}. Can add {canAdd} more to the stack. {toData.Amount} currently in destination slot.");
+
+            if (canAdd > 0)
+            {
+                int amountToMove = Mathf.Min(moveAmount, canAdd);
+                Debug.Log($"Stacking {amountToMove} of ItemID {fromData.ItemID} from Slot {fromIndex} to Slot {toIndex}");
+
+                // Update Destination
+                toData.ItemID = fromData.ItemID;
+                toData.Amount += amountToMove;
+                InventoryItems[toIndex] = toData;
+
+                // Update Source
+                fromData.Amount -= amountToMove;
+                if (fromData.Amount <= 0) fromData = new NetworkItems { ItemID = 0, Amount = 0 };
+                InventoryItems[fromIndex] = fromData;
+
+                Debug.Log($"Stacking {amountToMove} of ItemID {fromData.ItemID} from Slot {fromIndex} to Slot {toIndex}");
+                Debug.Log($"Post-Stack: Slot {fromIndex} has ItemID {fromData.ItemID} x{fromData.Amount}, Slot {toIndex} has ItemID {toData.ItemID} x{toData.Amount}");
+
+                return; // Logic finished for stacking
+            }
+        }
+
+    }
+
+    [ServerRpc]
     public void RequestDropItemServerRpc(int index)
     {
         if (index < InventoryItems.Count)
         {
             // Logic: Spawn the item in the 3D world here before removing
             InventoryItems.RemoveAt(index);
+        }
+    }
+    [ServerRpc]
+    public void RequestDeleteItemServerRpc(int index)
+    {
+        if (index >= 0 && index < InventoryItems.Count)
+        {
+            InventoryItems[index] = new NetworkItems { ItemID = 0, Amount = 0 };
         }
     }
 }

@@ -172,6 +172,15 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Pause"",
+                    ""type"": ""Button"",
+                    ""id"": ""7ed6d7dd-ebd0-4c04-bd98-8a3525ba3f01"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -493,6 +502,17 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""action"": ""NumPad"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b7cc7ecc-040f-4646-b56b-0a975417d07d"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -516,6 +536,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_Key_Pointer = m_Key.FindAction("Pointer", throwIfNotFound: true);
         m_Key_Numkey = m_Key.FindAction("Numkey", throwIfNotFound: true);
         m_Key_NumPad = m_Key.FindAction("NumPad", throwIfNotFound: true);
+        m_Key_Pause = m_Key.FindAction("Pause", throwIfNotFound: true);
     }
 
     ~@PlayerControls()
@@ -605,6 +626,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Key_Pointer;
     private readonly InputAction m_Key_Numkey;
     private readonly InputAction m_Key_NumPad;
+    private readonly InputAction m_Key_Pause;
     /// <summary>
     /// Provides access to input actions defined in input action map "Key".
     /// </summary>
@@ -652,6 +674,10 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Key/NumPad".
         /// </summary>
         public InputAction @NumPad => m_Wrapper.m_Key_NumPad;
+        /// <summary>
+        /// Provides access to the underlying input action "Key/Pause".
+        /// </summary>
+        public InputAction @Pause => m_Wrapper.m_Key_Pause;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -705,6 +731,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @NumPad.started += instance.OnNumPad;
             @NumPad.performed += instance.OnNumPad;
             @NumPad.canceled += instance.OnNumPad;
+            @Pause.started += instance.OnPause;
+            @Pause.performed += instance.OnPause;
+            @Pause.canceled += instance.OnPause;
         }
 
         /// <summary>
@@ -743,6 +772,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @NumPad.started -= instance.OnNumPad;
             @NumPad.performed -= instance.OnNumPad;
             @NumPad.canceled -= instance.OnNumPad;
+            @Pause.started -= instance.OnPause;
+            @Pause.performed -= instance.OnPause;
+            @Pause.canceled -= instance.OnPause;
         }
 
         /// <summary>
@@ -859,5 +891,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnNumPad(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Pause" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnPause(InputAction.CallbackContext context);
     }
 }

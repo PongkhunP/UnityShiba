@@ -3,13 +3,15 @@ using UnityEngine;
 public enum GameState { Playing, InMenu, Pause }
 public class GameDataManager : MonoBehaviour
 {
-    public static GameDataManager Singleton { get; private set; }
+    public static GameDataManager Instance { get; private set; }
     public GameState CurrentState { get; private set; }
-    public void Start()
+    public ItemDatabases itemDatabases;
+    public CraftRecipeDatabase craftRecipeDatabase;
+    public void Awake()
     {
-        if (Singleton == null)
+        if (Instance == null)
         {
-            Singleton = this;
+            Instance = this;
             DontDestroyOnLoad(gameObject);
         }
         else

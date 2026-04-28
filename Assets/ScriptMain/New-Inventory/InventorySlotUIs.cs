@@ -6,13 +6,11 @@ using UnityEngine.EventSystems;
 public class InventorySlotUIs : MonoBehaviour, IDropHandler
 {
     [Header("UI References")]
-    [SerializeField] private Image iconImage;
-    [SerializeField] private TextMeshProUGUI amountText;
-    [SerializeField] private InventoryItems itemIconPrefab; 
+    [SerializeField] private InventoryItems itemIconPrefab;
 
     [Header("Identification")]
     public int slotIndex;
-    public int inventoryID; 
+    public int inventoryID;
 
     [Header("Runtime Data")]
     public ItemSO currentItem;
@@ -21,19 +19,14 @@ public class InventorySlotUIs : MonoBehaviour, IDropHandler
 
     private void Awake()
     {
-        // Ensure we have a visual item component if one isn't there
         currentItemUI = GetComponentInChildren<InventoryItems>();
         if (currentItemUI != null)
         {
             currentItemUI.sourceSlot = this;
             amount = currentItemUI.amount;
         }
-        amountText.text = amount.ToString();
     }
 
-    /// <summary>
-    /// Called by the Network System (e.g., OnChanged) to refresh the UI
-    /// </summary>
     public void RefreshSlot(ItemSO newItem, int newAmount)
     {
         currentItem = newItem;
@@ -48,51 +41,52 @@ public class InventorySlotUIs : MonoBehaviour, IDropHandler
         UpdateUI();
     }
 
+    public void ClearSlotVisuals()
+    {
+        if (currentItemUI != null)
+        {
+            InventoryItems dragScript = currentItemUI.GetComponent<InventoryItems>();
+            if (dragScript != null && !dragScript.wasDroppedSuccessfully)
+            {
+                Destroy(currentItemUI.gameObject);
+                currentItemUI = null;
+            }
+            currentItemUI = null;
+        }
+    }
+
     public void UpdateUI()
     {
         if (currentItem == null) return;
 
-        iconImage.sprite = currentItem.icon;
-        iconImage.enabled = true;
-
-        // Terraria-style: Tools show infinity or nothing, items show count
-        if (amountText)
-        {
-            amountText.text = amount.ToString();
-        }
-
-        // Ensure the draggable component knows its current state
         if (currentItemUI == null)
         {
             currentItemUI = Instantiate(itemIconPrefab, transform);
             currentItemUI.sourceSlot = this;
+            currentItemUI.InitializeItem(currentItem, amount);
         }
 
         currentItemUI.item = currentItem;
         currentItemUI.amount = amount;
+        currentItemUI.RefreshUI();
     }
-
-    /// <summary>
-    /// Visual Deduction: Called by InventoryItems when the drag starts
-    /// </summary>
     public void OnItemDraggedAway(int amountTaken)
     {
         amount -= amountTaken;
 
         if (amount <= 0)
         {
-            iconImage.enabled = false;
-            if (amountText) amountText.text = "";
+            currentItemUI = null;
+            currentItem = null;
+            amount = 0;
         }
         else
         {
-            if (amountText) amountText.text = amount.ToString();
+            currentItemUI = null;
+            UpdateUI();
         }
     }
 
-    /// <summary>
-    /// Called when an InventoryItems is dropped ONTO this slot
-    /// </summary>
     public void OnDrop(PointerEventData eventData)
     {
         GameObject droppedObject = eventData.pointerDrag;
@@ -100,36 +94,33 @@ public class InventorySlotUIs : MonoBehaviour, IDropHandler
 
         InventoryItems draggedItem = droppedObject.GetComponent<InventoryItems>();
 
-        if (draggedItem != null)
+        if (draggedItem != null && InventoryMainUIs.Instance.activeData != null)
         {
-            draggedItem.wasDroppedSuccessfully = true;
-            draggedItem.transform.SetParent(transform);
-
-            // Snap it to the dead center of the slot
-            draggedItem.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
-
-            int fromInv = draggedItem.sourceSlot.inventoryID;
             int fromSlot = draggedItem.sourceSlot.slotIndex;
-            int toInv = this.inventoryID;
-            int toSlot = this.slotIndex;
-            int moveAmount = draggedItem.amount;
+            int toSlot = slotIndex;
+            if (fromSlot == toSlot)
+            {
 
-            Debug.Log($"[Client] Requesting move: {moveAmount} of {draggedItem.item.itemName} " +
-                      $"from Inv {fromInv}:Slot {fromSlot} to Inv {toInv}:Slot {toSlot}");
+                draggedItem.wasDroppedSuccessfully = false;
+                return;
+            }
+            bool isPartialStack = draggedItem.IsPartialStack();
+            bool isDifferentItem = currentItem != null && currentItem.itemID != draggedItem.item.itemID;
 
-            // InventoryNetworkManager.Instance.SendMoveRequest(fromInv, fromSlot, toInv, toSlot, moveAmount);
-            // --- MULTIPLAYER LOGIC END ---
+            if (isPartialStack && isDifferentItem)
+            {
+                draggedItem.wasDroppedSuccessfully = false; 
+                return;
+            }
+            
+            InventoryMainUIs.Instance.activeData.RequestPutItemServerRpc(fromSlot, toSlot, draggedItem.amount);
 
-            // Note: We don't snap the item into the slot here. 
-            // We let OnEndDrag ReturnToSource, and wait for the Server to update the NetworkList.
+            Destroy(draggedItem.gameObject);
         }
     }
 
-    private void ClearSlotVisuals()
+    public void LinkItemUI(InventoryItems itemUI)
     {
-        currentItem = null;
-        amount = 0;
-        iconImage.enabled = false;
-        if (amountText) amountText.text = "";
+        currentItemUI = itemUI;
     }
 }

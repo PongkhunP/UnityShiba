@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public enum ItemCategory { Tool, Seed, Consumable, CraftingMaterial, FarmHelper }
+public enum ItemCategory { Base, Tools, Food, Structures, Resources, Seed, FarmHelper, Wearables }
 public enum ToolAction { None, Hoe, Water, Axe }
 
 public enum SellCategory { Farming, Fishing, Ore, Other }
@@ -31,7 +31,7 @@ public class ItemSO : ScriptableObject
     [Min(1)] public int maxStack = 99;
 
     [Header("Gameplay")]
-    public ItemCategory category = ItemCategory.Tool;
+    public ItemCategory category = ItemCategory.Tools;
     public ToolAction toolAction = ToolAction.None;
     public CropSO seedCrop;
 

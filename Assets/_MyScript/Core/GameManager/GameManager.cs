@@ -151,7 +151,7 @@ public class GameManager : MonoBehaviour
 
         // Crafting — สูตรที่เรียนรู้แล้ว
         if (CraftingManager.Instance != null)
-            data.learnedRecipes = CraftingManager.Instance.GetLearnedRecipes();
+            // data.learnedRecipes = CraftingManager.Instance.GetLearnedRecipes();
 
         // Debt Punishment — consecutive misses
         if (DebtPunishmentSystem.Instance != null)
@@ -257,7 +257,7 @@ public class GameManager : MonoBehaviour
 
         // Crafting — โหลดสูตรที่เรียนรู้แล้ว
         if (CraftingManager.Instance != null && data.learnedRecipes != null)
-            CraftingManager.Instance.SetLearnedRecipes(data.learnedRecipes);
+            // CraftingManager.Instance.SetLearnedRecipes(data.learnedRecipes);
 
         // Debt Punishment — โหลด consecutive misses
         if (DebtPunishmentSystem.Instance != null)

@@ -62,7 +62,7 @@ public class HotbarSlot : MonoBehaviour
         // Amount text — Tool แสดง ∞ แทนตัวเลข
         if (amountText)
         {
-            if (item != null && item.category == ItemCategory.Tool)
+            if (item != null && item.category == ItemCategory.Tools)
                 amountText.text = "∞";
             else if (amount > 0)
                 amountText.text = amount.ToString();

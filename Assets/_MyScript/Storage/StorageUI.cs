@@ -135,7 +135,7 @@ public class StorageUI : MonoBehaviour
             if (!data.IsEmpty)
             {
                 if (icon)   { icon.sprite = data.item.icon; icon.enabled = true; }
-                if (amount) amount.text = data.item.category == ItemCategory.Tool
+                if (amount) amount.text = data.item.category == ItemCategory.Tools
                                             ? "∞" : data.amount.ToString();
             }
             else
@@ -187,7 +187,7 @@ public class StorageUI : MonoBehaviour
             foreach (var slot in HotbarUI.Instance.slots)
             {
                 if (slot == null || slot.item == null || slot.amount <= 0) continue;
-                if (slot.item.category == ItemCategory.Tool) continue;
+                if (slot.item.category == ItemCategory.Tools) continue;
                 SpawnPlayerSlot(slot.item, slot.amount, fromHotbar: true);
             }
         }

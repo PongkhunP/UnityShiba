@@ -4,14 +4,17 @@ public class StatManager : NetworkBehaviour
 {
     [Header("Stat")]
     [SerializeField] public PlayerStatDataSO statsTemplate;
+    [SerializeField] private KnowledgeStatDataSignal knowledgeSignal;
 
     public NetworkList<NetworkStat> AllStats;
+    public NetworkList<NetworkKnowledgeStat> KnowledgeLevels;
     private PlayerController _controller;
 
     public void Awake()
     {
         AllStats = new NetworkList<NetworkStat>();
-        _controller = GetComponentInParent<PlayerController>();
+        KnowledgeLevels = new NetworkList<NetworkKnowledgeStat>();
+        _controller = GetComponent<PlayerController>();
     }
 
     private void InitializeStat(StatType type, float max)
@@ -32,9 +35,9 @@ public class StatManager : NetworkBehaviour
             InitializeStat(StatType.Stamina, statsTemplate.maxStamina);
             InitializeStat(StatType.Energy, statsTemplate.maxEnergy);
 
-            foreach (var stat in AllStats)
+            foreach (RecipeCategory cat in System.Enum.GetValues(typeof(RecipeCategory)))
             {
-
+                KnowledgeLevels.Add(new NetworkKnowledgeStat { Category = cat, Level = 1 });
             }
         }
         if (IsOwner)
@@ -47,6 +50,7 @@ public class StatManager : NetworkBehaviour
             {
                 NetworkManager.SceneManager.OnSceneEvent += OnSceneEvent;
             }
+            knowledgeSignal.UpdateKnowledgeSource(this);
         }
     }
 
@@ -59,6 +63,15 @@ public class StatManager : NetworkBehaviour
                 PlayerUI.Instance.BindPlayer(this);
             }
         }
+    }
+
+    public int GetLevelForCategory(RecipeCategory category)
+    {
+        foreach (var stat in KnowledgeLevels)
+        {
+            if (stat.Category == category) return stat.Level;
+        }
+        return 1;
     }
 
     public override void OnNetworkDespawn()

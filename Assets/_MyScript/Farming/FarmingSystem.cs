@@ -62,7 +62,7 @@ public class FarmingSystem : SerializedMonoBehaviour
 
         switch (item.category)
         {
-            case ItemCategory.Tool: UseTool(item, tile); break;
+            case ItemCategory.Tools: UseTool(item, tile); break;
             case ItemCategory.Seed: PlantSeed(item, tile); break;
         }
     }

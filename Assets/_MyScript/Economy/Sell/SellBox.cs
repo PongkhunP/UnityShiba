@@ -219,7 +219,7 @@ public class SellBox : MonoBehaviour
             {
                 if (slot == null || slot.item == null || slot.amount <= 0) continue;
                 if (!slot.item.sellable) continue;
-                if (slot.item.category == ItemCategory.Tool) continue; // Tool ขายไม่ได้
+                if (slot.item.category == ItemCategory.Tools) continue; // Tool ขายไม่ได้
                 SpawnInventoryButton(slot.item, slot.amount, isHotbar: true);
             }
         }

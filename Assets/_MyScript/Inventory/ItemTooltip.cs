@@ -199,11 +199,13 @@ public class ItemTooltip : MonoBehaviour
     {
         switch (cat)
         {
-            case ItemCategory.Tool: return "เครื่องมือ";
+            case ItemCategory.Tools: return "เครื่องมือ";
             case ItemCategory.Seed: return "เมล็ดพันธุ์";
-            case ItemCategory.Consumable: return "ของใช้";
-            case ItemCategory.CraftingMaterial: return "วัตถุดิบ";
+            case ItemCategory.Food: return "อาหาร";
+            case ItemCategory.Resources: return "วัตถุดิบ";
             case ItemCategory.FarmHelper: return "ตัวช่วยฟาร์ม";
+            case ItemCategory.Wearables: return "ของแต่งกาย";
+            case ItemCategory.Structures: return "โครงสร้าง";
             default: return "อื่น ๆ";
         }
     }

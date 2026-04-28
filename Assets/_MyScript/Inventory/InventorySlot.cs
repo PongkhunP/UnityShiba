@@ -61,7 +61,7 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler
         if (amountText)
         {
             if (item == null || amount <= 0) amountText.text = "";
-            else if (item.category == ItemCategory.Tool) amountText.text = "∞";
+            else if (item.category == ItemCategory.Tools) amountText.text = "∞";
             else amountText.text = amount.ToString();
         }
     }

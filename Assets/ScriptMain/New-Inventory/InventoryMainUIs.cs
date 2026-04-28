@@ -1,14 +1,18 @@
 using Unity.Netcode;
 using UnityEngine;
 
-public class InventoryMainUIs : MonoBehaviour
+public class InventoryMainUIs : MonoBehaviour, IInitializableUI
 {
+    public static InventoryMainUIs Instance { get; private set; }
     [SerializeField] private InventoryDataSignal connectionSignal; // Assign in Inspector or find at runtime
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private InventorySlotUIs[] allSlots;
-    private InventoryData activeData;
-    void Start()
+    public InventoryData activeData { get; private set; }
+    private bool isHostProcessing = false;
+
+    public void InitializeUI()
     {
+        Instance = this;
         // Find all SlotUIs under this panel
         allSlots = GetComponentsInChildren<InventorySlotUIs>();
 
@@ -21,10 +25,13 @@ public class InventoryMainUIs : MonoBehaviour
             allSlots[i].inventoryID = 0; // 0 for Player Backpack
         }
     }
-
     void OnEnable()
     {
         connectionSignal.OnDataUpdate += HandleInventoryConnected;
+        if (connectionSignal.CurrentData != null)
+        {
+            HandleInventoryConnected(connectionSignal.CurrentData);
+        }
     }
 
     void OnDisable()
@@ -35,13 +42,16 @@ public class InventoryMainUIs : MonoBehaviour
         if (activeData != null)
         {
             activeData.InventoryItems.OnListChanged -= OnNetworkListChanged;
+
+            activeData = null;
         }
     }
 
     private void HandleInventoryConnected(InventoryData data)
     {
-        Debug.Log("Handle Inventory Connected...");
+        // Debug.Log("Handle Inventory Connected...");
         // 1. Store the reference
+        if (activeData == data) return;
         activeData = data;
 
         // 2. Subscribe to real-time network changes
@@ -54,14 +64,23 @@ public class InventoryMainUIs : MonoBehaviour
     private void OnNetworkListChanged(NetworkListEvent<NetworkItems> changeEvent)
     {
         Debug.Log("Network List Changed: " + changeEvent.Type);
-        RefreshAllSlots();
+        isHostProcessing = true; // Prevent feedback loops if we're the host
+    }
+    private void LateUpdate()
+    {
+        // LateUpdate happens after all ServerRpc logic is finished for the frame.
+        if (isHostProcessing)
+        {
+            RefreshAllSlots();
+            isHostProcessing = false;
+        }
     }
 
     public void RefreshAllSlots()
     {
         if (activeData == null) return;
 
-        Debug.Log("Refreshing Inventory Visuals...");
+        // Debug.Log("Refreshing Inventory Visuals...");
 
         // Loop through our UI slots and match them to the NetworkList data
         for (int i = 0; i < allSlots.Length; i++)
@@ -72,8 +91,11 @@ public class InventoryMainUIs : MonoBehaviour
                 NetworkItems itemData = activeData.InventoryItems[i];
 
                 // Pass the data to the individual slot script to handle images/text
-                ItemSO itemSO = GameDataManager.Singleton.itemDatabases.GetItemByID(itemData.ItemID);  
-                Debug.Log($"Updating Slot {i}: ItemID={itemData.ItemID}, Amount={itemData.Amount}, ItemName={itemSO?.itemName}");  
+                ItemSO itemSO = GameDataManager.Instance.itemDatabases.GetItemByID(itemData.ItemID);
+                if (itemSO != null)
+                {
+                    Debug.Log($"[InventoryMainUI] : Updating Slot {i}: ItemID={itemData.ItemID}, Amount={itemData.Amount}, ItemName={itemSO?.itemName}");
+                }
                 allSlots[i].RefreshSlot(itemSO, itemData.Amount);
             }
         }

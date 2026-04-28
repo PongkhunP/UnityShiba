@@ -15,7 +15,7 @@ public class PauseMenuUI : MonoBehaviour
     [SerializeField] private bool pauseWithTimeScale = true;
     [SerializeField] private bool unlockCursorOnOpen = true;
 
-    [Tooltip("����Դ = �͹���������ͤ�������Ы�͹�������� (����͹ TPS)\n��һԴ = �͹�������������������ʹ (����СѺ����ԡ�ӿ����)")]
+    [Tooltip("Optional")]
     [SerializeField] private bool lockCursorWhenPlaying = false;
 
     [Header("UI Blockers (optional)")]
@@ -50,35 +50,25 @@ public class PauseMenuUI : MonoBehaviour
 
         if (player == null) return;
 
-        // ���੾�� component �� Player �����ҡ�Դ�͹ Pause
-        // (��Ҥس������� extraDisable �������� �������繵�ͧ��������ç���)
         var behaviours = player.GetComponentsInChildren<Behaviour>(true);
         foreach (var b in behaviours)
         {
             if (b == null) continue;
 
-            // ���һԴ����ͧ ������һԴ UI
             if (b == this) continue;
 
-            // �ѹ��Ҵ: ����� InventoryUI ���� PauseMenuUI ������ͧ�Դ
-            // (���������ѹ compile error �������դ���)
             if (b.GetType().Name == "InventoryUI") continue;
             if (b.GetType().Name == "PauseMenuUI") continue;
-
-            // ����� ���ͤس��ҡ���͹Ҥ�
-            // _autoDisable.Add(b);
         }
     }
 
     private void Update()
     {
-        // ��� Inventory �Դ���� ��� ESC �ӧҹ�Ѻ Inventory (��������������س)
-        // �������Ҩ���� ESC �Դ/�Դ Pause ੾�е͹ Inventory ����Դ
+
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (InventoryMainUI.IsOpen) return;
 
-            // �������� Settings ���ǡ� ESC = ��Ѻ�˹�� Pause
             if (_isPaused && settingsPanel != null && settingsPanel.activeSelf)
             {
                 CloseSettings();
@@ -92,13 +82,11 @@ public class PauseMenuUI : MonoBehaviour
 
     private void LateUpdate()
     {
-        // �ѹ�ó�ʤ�Ի��������ͤ�����Ѻ (������ ���ԡ�����������)
         ApplyCursorState();
     }
 
     private void OnApplicationFocus(bool hasFocus)
     {
-        // ���� alt-tab ���ͤ�ԡ��Ѻ����� ���ʶҹ������١��ͧ����
         if (hasFocus) ApplyCursorState();
     }
 
@@ -148,16 +136,11 @@ public class PauseMenuUI : MonoBehaviour
     {
         if (pauseWithTimeScale)
             Time.timeScale = paused ? 0f : 1f;
-
-        // �Դ component ���س�ҡ������ͧ�͹ pause
         for (int i = 0; i < extraDisable.Count; i++)
         {
             var b = extraDisable[i];
             if (b != null) b.enabled = !paused;
         }
-
-        // (����͹Ҥ�) ��Ҥس��ҡ��� auto disable �ӧҹ ���Դ��÷Ѵ���
-        // for (int i = 0; i < _autoDisable.Count; i++) if (_autoDisable[i] != null) _autoDisable[i].enabled = !paused;
 
         ApplyCursorState();
     }
@@ -168,7 +151,6 @@ public class PauseMenuUI : MonoBehaviour
 
         if (anyMenuOpen)
         {
-            // �����Դ -> ��ͧ��������
             if (unlockCursorOnOpen)
             {
                 Cursor.visible = true;
@@ -176,8 +158,6 @@ public class PauseMenuUI : MonoBehaviour
             }
             return;
         }
-
-        // ���ٻԴ -> ʶҹ������͹�����
         if (lockCursorWhenPlaying)
         {
             Cursor.visible = false;
@@ -189,8 +169,6 @@ public class PauseMenuUI : MonoBehaviour
             Cursor.lockState = CursorLockMode.None;
         }
     }
-
-    // ---------------- Buttons ----------------
 
     public void OnButton_Play()
     {
@@ -205,8 +183,8 @@ public class PauseMenuUI : MonoBehaviour
 
     public void OnButton_SaveAndQuit()
     {
-        if (GameDataManager.Singleton != null)
-            GameDataManager.Singleton.SaveGame();
+        if (GameDataManager.Instance != null)
+            GameDataManager.Instance.SaveGame();
 
         Time.timeScale = 1f;
         SceneManager.LoadScene("MainMenu");

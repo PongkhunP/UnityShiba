@@ -4,13 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-/// <summary>
-/// UI สำหรับโต๊ะคราฟ (Workbench)
-/// - แสดงรายการสูตรที่ปลดล็อก
-/// - แสดงวัตถุดิบ + สีเขียว/แดง ถ้ามี/ไม่มี
-/// - ปุ่มคราฟ
-/// - ปุ่มปิด
-/// </summary>
 public class CraftingUI : MonoBehaviour
 {
     public static CraftingUI Instance { get; private set; }
@@ -68,7 +61,7 @@ public class CraftingUI : MonoBehaviour
     void Start()
     {
         // ซ่อน Panel หลังจาก Awake() ทั้งหมดรันแล้ว (รวมถึง CraftingManager)
-        if (craftingPanel) craftingPanel.SetActive(false);
+        // if (craftingPanel) craftingPanel.SetActive(false);
 
         if (craftButton) craftButton.onClick.AddListener(OnCraftPressed);
         if (closeButton) closeButton.onClick.AddListener(Close);
@@ -76,7 +69,7 @@ public class CraftingUI : MonoBehaviour
 
     void Update()
     {
-        if (isOpen && Input.GetKeyDown(KeyCode.Escape)) Close();
+        // if (isOpen && Input.GetKeyDown(KeyCode.Escape)) Close();
     }
 
     // ================================================================
@@ -85,15 +78,15 @@ public class CraftingUI : MonoBehaviour
 
     public void Open()
     {
-        if (isOpen) return;
-        isOpen = true;
+        // if (isOpen) return;
+        // isOpen = true;
 
-        if (craftingPanel) craftingPanel.SetActive(true);
+        // if (craftingPanel) craftingPanel.SetActive(true);
 
-        // *** FIX: Unlock cursor เสมอเมื่อเปิด CraftingPanel ***
-        // ไม่ใส่เงื่อนไข เพราะถ้า cursor ยัง Lock อยู่จะคลิกอะไรไม่ได้เลย
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
+        // // *** FIX: Unlock cursor เสมอเมื่อเปิด CraftingPanel ***
+        // // ไม่ใส่เงื่อนไข เพราะถ้า cursor ยัง Lock อยู่จะคลิกอะไรไม่ได้เลย
+        // Cursor.visible = true;
+        // Cursor.lockState = CursorLockMode.None;
 
         // หยุดเวลา (optional — comment ออกถ้าไม่ต้องการ)
         // Time.timeScale = 0f;
@@ -106,27 +99,27 @@ public class CraftingUI : MonoBehaviour
 
     public void Close()
     {
-        if (!isOpen) return;
-        isOpen = false;
+        // if (!isOpen) return;
+        // isOpen = false;
 
-        if (craftingPanel) craftingPanel.SetActive(false);
+        // if (craftingPanel) craftingPanel.SetActive(false);
 
-        // Restore cursor — คืนค่าเฉพาะเมื่อไม่มี UI อื่นเปิดอยู่
-        bool anyUIOpen = (InventoryMainUI.Instance != null && InventoryMainUI.IsOpen);
-        if (!anyUIOpen)
-        {
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
-        }
+        // // Restore cursor — คืนค่าเฉพาะเมื่อไม่มี UI อื่นเปิดอยู่
+        // bool anyUIOpen = (InventoryMainUI.Instance != null && InventoryMainUI.IsOpen);
+        // if (!anyUIOpen)
+        // {
+        //     Cursor.visible = false;
+        //     Cursor.lockState = CursorLockMode.Locked;
+        // }
 
         // Time.timeScale = 1f;
     }
 
-    public void Toggle()
-    {
-        if (isOpen) Close();
-        else Open();
-    }
+    // public void Toggle()
+    // {
+    //     if (isOpen) Close();
+    //     else Open();
+    // }
 
     // ================================================================
     // Recipe List
@@ -135,40 +128,40 @@ public class CraftingUI : MonoBehaviour
     void RefreshRecipeList()
     {
         // ลบเก่า
-        foreach (var obj in spawnedRecipeButtons) if (obj) Destroy(obj);
-        spawnedRecipeButtons.Clear();
+        // foreach (var obj in spawnedRecipeButtons) if (obj) Destroy(obj);
+        // spawnedRecipeButtons.Clear();
 
-        if (CraftingManager.Instance == null) return;
+        // if (CraftingManager.Instance == null) return;
 
-        var recipes = CraftingManager.Instance.GetAvailableRecipes(workbenchLevel);
+        // var recipes = CraftingManager.Instance.GetAvailableRecipes(workbenchLevel);
 
-        foreach (var recipe in recipes)
-        {
-            if (recipeButtonPrefab == null || recipeListParent == null) continue;
+        // foreach (var recipe in recipes)
+        // {
+        //     if (recipeButtonPrefab == null || recipeListParent == null) continue;
 
-            var btn = Instantiate(recipeButtonPrefab, recipeListParent);
-            spawnedRecipeButtons.Add(btn);
+        //     var btn = Instantiate(recipeButtonPrefab, recipeListParent);
+        //     spawnedRecipeButtons.Add(btn);
 
-            // ตั้งค่า UI
-            var label = btn.GetComponentInChildren<TextMeshProUGUI>();
-            if (label) label.text = recipe.recipeName;
+        //     // ตั้งค่า UI
+        //     var label = btn.GetComponentInChildren<TextMeshProUGUI>();
+        //     if (label) label.text = recipe.recipeName;
 
-            var icon = btn.transform.Find("Icon")?.GetComponent<Image>();
-            if (icon)
-            {
-                if (recipe.icon) icon.sprite = recipe.icon;
-                else icon.color = Color.clear; // ซ่อน Icon ถ้าไม่มี Sprite
-            }
+        //     var icon = btn.transform.Find("Icon")?.GetComponent<Image>();
+        //     if (icon)
+        //     {
+        //         if (recipe.icon) icon.sprite = recipe.icon;
+        //         else icon.color = Color.clear; // ซ่อน Icon ถ้าไม่มี Sprite
+        //     }
 
-            // Highlight สีตามว่าคราฟได้ไหม
-            var canCraft = CraftingManager.Instance.CanCraft(recipe) == CraftResult.Success;
-            var bgImage = btn.GetComponent<Image>();
-            if (bgImage) bgImage.color = canCraft ? new Color(0.8f, 1f, 0.8f) : new Color(1f, 0.85f, 0.85f);
+        //     // Highlight สีตามว่าคราฟได้ไหม
+        //     // var canCraft = CraftingManager.Instance.CanCraft(recipe) == CraftResult.Success;
+        //     var bgImage = btn.GetComponent<Image>();
+        //     if (bgImage) bgImage.color = canCraft ? new Color(0.8f, 1f, 0.8f) : new Color(1f, 0.85f, 0.85f);
 
-            // Click → select recipe
-            var captured = recipe;
-            btn.GetComponent<Button>()?.onClick.AddListener(() => SelectRecipe(captured));
-        }
+        //     // Click → select recipe
+        //     var captured = recipe;
+        //     btn.GetComponent<Button>()?.onClick.AddListener(() => SelectRecipe(captured));
+        // }
     }
 
     // ================================================================
@@ -256,50 +249,50 @@ public class CraftingUI : MonoBehaviour
         foreach (var obj in spawnedIngredientRows) if (obj) Destroy(obj);
         spawnedIngredientRows.Clear();
 
-        if (recipe.ingredients != null && ingredientRowPrefab && ingredientListParent)
-        {
-            foreach (var ing in recipe.ingredients)
-            {
-                if (ing.item == null) continue;
+        // if (recipe.ingredients != null && ingredientRowPrefab && ingredientListParent)
+        // {
+        //     foreach (var ing in recipe.ingredients)
+        //     {
+        //         if (ing.item == null) continue;
 
-                var row = Instantiate(ingredientRowPrefab, ingredientListParent);
-                spawnedIngredientRows.Add(row);
+        //         var row = Instantiate(ingredientRowPrefab, ingredientListParent);
+        //         spawnedIngredientRows.Add(row);
 
-                var nameTxt = row.transform.Find("Name")?.GetComponent<TextMeshProUGUI>();
-                var amountTxt = row.transform.Find("Amount")?.GetComponent<TextMeshProUGUI>();
-                var iconImg = row.transform.Find("Icon")?.GetComponent<Image>();
+        //         var nameTxt = row.transform.Find("Name")?.GetComponent<TextMeshProUGUI>();
+        //         var amountTxt = row.transform.Find("Amount")?.GetComponent<TextMeshProUGUI>();
+        //         var iconImg = row.transform.Find("Icon")?.GetComponent<Image>();
 
-                int have = CraftingManager.Instance.CountItem(ing.item);
-                bool enough = have >= ing.amount;
+        //         int have = CraftingManager.Instance.CountItem(ing.item);
+        //         bool enough = have >= ing.amount;
 
-                if (nameTxt) nameTxt.text = ing.item.itemName;
-                if (amountTxt)
-                {
-                    amountTxt.text = $"{have}/{ing.amount}";
-                    amountTxt.color = enough ? Color.green : Color.red;
-                }
-                if (iconImg && ing.item.icon) iconImg.sprite = ing.item.icon;
-            }
-        }
+        //         if (nameTxt) nameTxt.text = ing.item.itemName;
+        //         if (amountTxt)
+        //         {
+        //             amountTxt.text = $"{have}/{ing.amount}";
+        //             amountTxt.color = enough ? Color.green : Color.red;
+        //         }
+        //         if (iconImg && ing.item.icon) iconImg.sprite = ing.item.icon;
+        //     }
+        // }
 
-        // Result
-        if (resultText)
-            resultText.text = $"ผลลัพธ์: {recipe.resultItem.itemName} x{recipe.resultAmount}";
+        // // Result
+        // if (resultText)
+        //     resultText.text = $"ผลลัพธ์: {recipe.resultItem.itemName} x{recipe.resultAmount}";
 
-        // Craft Button
-        var canCraft = CraftingManager.Instance.CanCraft(recipe);
-        if (craftButton) craftButton.interactable = (canCraft == CraftResult.Success);
-        if (craftButtonText)
-        {
-            switch (canCraft)
-            {
-                case CraftResult.Success: craftButtonText.text = "คราฟ!"; break;
-                case CraftResult.NotEnoughMaterials: craftButtonText.text = "วัตถุดิบไม่พอ"; break;
-                case CraftResult.InventoryFull: craftButtonText.text = "Inventory เต็ม"; break;
-                case CraftResult.NotEnoughEnergy: craftButtonText.text = "พลังงานไม่พอ"; break;
-                default: craftButtonText.text = "ไม่สามารถคราฟได้"; break;
-            }
-        }
+        // // Craft Button
+        // var canCraft = CraftingManager.Instance.CanCraft(recipe);
+        // if (craftButton) craftButton.interactable = (canCraft == CraftResult.Success);
+        // if (craftButtonText)
+        // {
+        //     switch (canCraft)
+        //     {
+        //         case CraftResult.Success: craftButtonText.text = "คราฟ!"; break;
+        //         case CraftResult.NotEnoughMaterials: craftButtonText.text = "วัตถุดิบไม่พอ"; break;
+        //         case CraftResult.InventoryFull: craftButtonText.text = "Inventory เต็ม"; break;
+        //         case CraftResult.NotEnoughEnergy: craftButtonText.text = "พลังงานไม่พอ"; break;
+        //         default: craftButtonText.text = "ไม่สามารถคราฟได้"; break;
+        //     }
+        // }
     }
 
     void ClearDetail()
@@ -325,27 +318,27 @@ public class CraftingUI : MonoBehaviour
         if (selectedRecipe == null) return;
         if (CraftingManager.Instance == null) return;
 
-        var result = CraftingManager.Instance.Craft(selectedRecipe);
+        // var result = CraftingManager.Instance.Craft(selectedRecipe);
 
-        switch (result)
-        {
-            case CraftResult.Success:
-                ShowFeedback($"คราฟ {selectedRecipe.resultItem.itemName} สำเร็จ!", Color.green);
-                // Refresh ทั้งหมดเพื่ออัพเดท stock
-                RefreshRecipeList();
-                RefreshInventoryPreview();
-                SelectRecipe(selectedRecipe);
-                break;
-            case CraftResult.NotEnoughMaterials:
-                ShowFeedback("วัตถุดิบไม่พอ!", Color.red);
-                break;
-            case CraftResult.InventoryFull:
-                ShowFeedback("Inventory เต็ม!", Color.red);
-                break;
-            default:
-                ShowFeedback("ไม่สามารถคราฟได้", Color.red);
-                break;
-        }
+        // switch (result)
+        // {
+        //     case CraftResult.Success:
+        //         ShowFeedback($"คราฟ {selectedRecipe.resultItem.itemName} สำเร็จ!", Color.green);
+        //         // Refresh ทั้งหมดเพื่ออัพเดท stock
+        //         RefreshRecipeList();
+        //         RefreshInventoryPreview();
+        //         SelectRecipe(selectedRecipe);
+        //         break;
+        //     case CraftResult.NotEnoughMaterials:
+        //         ShowFeedback("วัตถุดิบไม่พอ!", Color.red);
+        //         break;
+        //     case CraftResult.InventoryFull:
+        //         ShowFeedback("Inventory เต็ม!", Color.red);
+        //         break;
+        //     default:
+        //         ShowFeedback("ไม่สามารถคราฟได้", Color.red);
+        //         break;
+        // }
     }
 
     // ================================================================
