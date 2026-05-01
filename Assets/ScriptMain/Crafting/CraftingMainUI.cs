@@ -8,14 +8,17 @@ using UnityEngine.UI;
 
 public class CraftingMainUI : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     [Header("Detail Panel References")]
     [SerializeField] private TextMeshProUGUI detailName;
     [SerializeField] private TextMeshProUGUI detailDesc;
     [SerializeField] private Image detailIcon;
     [SerializeField] private Transform ingredientListParent;
+    [SerializeField] private GameObject ingredientChildPrefab;
     [SerializeField] private Transform recipeContainer;
+    [SerializeField] private Transform statContainer;
     [SerializeField] private GameObject recipeItemPrefab;
+    [SerializeField] private Image perkIcon;
+    [SerializeField] private CraftStatUIItem craftStatUIItemPrefab;
     [Header("Buttons")]
     [SerializeField] private Button craftButton;
     [SerializeField] private List<CategoryButton> categoryButtons;
@@ -50,6 +53,11 @@ public class CraftingMainUI : MonoBehaviour
             RecipeCategory captured = cb.category; 
             cb.button.onClick.AddListener(() => OnCategoryButtonClicked(captured));
         }
+    }
+
+    public void OnRecipeUIIemClicked(CraftingRecipeSO recipe)
+    {
+        SelectRecipe(recipe);
     }
 
     void OnEnable()
@@ -115,7 +123,6 @@ public class CraftingMainUI : MonoBehaviour
             Debug.Log("recipeItemPrefab is not assigned on " + gameObject.name, gameObject);
             return;
         }
-        // 1. Clear the current Grid Layout children
         Debug.Log($"Refreshing recipe display with {recipeIds.Length} recipes. Clearing existing items.");
         if (recipeContainer == null)
         {
@@ -127,25 +134,31 @@ public class CraftingMainUI : MonoBehaviour
             Destroy(child.gameObject);
         }
 
-        // 2. Spawn new items
         foreach (int id in recipeIds)
         {
             CraftingRecipeSO recipe = GameDataManager.Instance.craftRecipeDatabase.GetRecipeByID(id);
             if (recipe != null)
             {
-                // Instantiate your Item UI prefab and set its data
                 GameObject item = Instantiate(recipeItemPrefab, recipeContainer);
                 item.GetComponent<RecipeUIItem>().Setup(recipe);
+                Button btn = item.GetComponent<Button>();
+                if (btn != null)
+                {
+                    btn.onClick.AddListener(() => OnRecipeUIIemClicked(recipe));
+                }
+                else
+                {
+                    Debug.LogWarning("Recipe item prefab does not have a Button component. Cannot add click listener.");
+                }
             }
         }
-    }
 
-    // private string GetFullPath(Transform t)
-    // {
-    //     string path = t.name;
-    //     while (t.parent != null) { t = t.parent; path = t.name + "/" + path; }
-    //     return path;
-    // }
+        CraftingRecipeSO defaultRecipe = GameDataManager.Instance.craftRecipeDatabase.GetRecipeByID(recipeIds[0]);
+        if (defaultRecipe != null)
+        {
+            SelectRecipe(defaultRecipe);
+        }
+    }
 
     public void SelectRecipe(CraftingRecipeSO recipe)
     {
@@ -153,12 +166,44 @@ public class CraftingMainUI : MonoBehaviour
         detailDesc.text = recipe.description;
         detailIcon.sprite = recipe.icon;
 
-        // Refresh the ingredients needed
+        if(recipe.itemPerk == null)
+        {
+            perkIcon = null;
+        }
+        else
+        {
+            perkIcon = recipe.itemPerk.perkIcon;
+        }
+
+        if(recipe.itemStat != null)
+        {
+            foreach(Transform child in statContainer)
+            {
+                Destroy(child.gameObject);
+            }
+            foreach(var stat in recipe.itemStat.itemStats)
+            {
+                Debug.Log($"Adding stat {stat.Type} with amount {stat.Amount} to craft stat UI.");
+                CraftStatUIItem item = Instantiate(craftStatUIItemPrefab, statContainer);
+                item.Setup(stat);
+            }
+        }
+
         UpdateIngredientDisplay(recipe);
     }
 
     private void UpdateIngredientDisplay(CraftingRecipeSO recipe)
     {
-        throw new NotImplementedException();
+        foreach (Transform child in ingredientListParent)
+        {
+            Destroy(child.gameObject);
+        }
+
+        foreach (var ingredient in recipe.ingredients)
+        {
+            GameObject item = Instantiate(ingredientChildPrefab, ingredientListParent);
+            IngredientUIItem uiItem = item.GetComponent<IngredientUIItem>();
+            uiItem.Setup(ingredient);
+        }
     }
 }

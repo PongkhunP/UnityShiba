@@ -15,7 +15,7 @@ MonoBehaviour:
   recipeName: Knife
   recipeID: 4
   category: 0
-  description: 
+  description: Use to cut food and other item
   icon: {fileID: 21300000, guid: 1d4ecf858d38e1d47bc0d020378abb60, type: 3}
   ingredients:
   - item: {fileID: 11400000, guid: fba18953844cfff40b5204accdff8c23, type: 2}
@@ -29,3 +29,5 @@ MonoBehaviour:
   requiresLearning: 0
   minWorkbenchLevel: 0
   energyCost: 5
+  itemPerk: {fileID: 0}
+  itemStat: {fileID: 11400000, guid: 29e44c21da350264a9bfb56a40150838, type: 2}

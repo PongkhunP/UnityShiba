@@ -12,11 +12,6 @@ public class CraftingManager : NetworkBehaviour
     public event Action<string> OnRecipeLearned;
     void Awake()
     {
-        // if (Instance != null && Instance != this)
-        // {
-        //     Destroy(this);
-        //     return;
-        // }
         Instance = this;
     }
 
@@ -65,7 +60,6 @@ public class CraftingManager : NetworkBehaviour
 
             UpdateRecipeListClientRpc(recipeIds, clientRpcParams);
         }
-
     }
 
     [ClientRpc]

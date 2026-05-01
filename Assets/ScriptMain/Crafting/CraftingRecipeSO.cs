@@ -50,6 +50,12 @@ public class CraftingRecipeSO : ScriptableObject
         }
         return true;
     }
+
+    [Tooltip("Item perk")]
+    public PerkDataSO itemPerk = null;
+
+    [Tooltip("Craft item stat")]
+    public ItemStatDataSO itemStat = null;
 }
 
 [System.Serializable]

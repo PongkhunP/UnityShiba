@@ -4,6 +4,7 @@ public class StatManager : NetworkBehaviour
 {
     [Header("Stat")]
     [SerializeField] public PlayerStatDataSO statsTemplate;
+    public NetworkList<int> ActivePerkIds;
 
     public NetworkList<NetworkStat> AllStats;
     public NetworkList<NetworkKnowledgeStat> KnowledgeLevels;
@@ -13,6 +14,7 @@ public class StatManager : NetworkBehaviour
     {
         AllStats = new NetworkList<NetworkStat>();
         KnowledgeLevels = new NetworkList<NetworkKnowledgeStat>();
+        ActivePerkIds = new NetworkList<int>();
         _controller = GetComponent<PlayerController>();
     }
 

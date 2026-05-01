@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "PlayerStatDataSO", menuName = "Scriptable Objects/PlayerStatDataSO")]
+[CreateAssetMenu(fileName = "PlayerStatDataSO", menuName = "Stat/PlayerStatDataSO")]
 public class PlayerStatDataSO : ScriptableObject
 {
     [Header("Max value")]

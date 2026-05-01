@@ -29,3 +29,5 @@ MonoBehaviour:
   requiresLearning: 0
   minWorkbenchLevel: 0
   energyCost: 5
+  itemPerk: {fileID: 0}
+  itemStat: {fileID: 11400000, guid: a7dc822e2aa87ca4d8332e1d2f22748f, type: 2}
