@@ -1816,7 +1816,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatManager
   ShowTopMostFoldoutHeaderGroup: 1
   statsTemplate: {fileID: 11400000, guid: a3b9211ce721dd1419edab10918d8545, type: 2}
-  knowledgeSignal: {fileID: 11400000, guid: e1f3af7144d25d04fb2c3416ce1f9f60, type: 2}
+  ActivePerkIds:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
   AllStats:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0

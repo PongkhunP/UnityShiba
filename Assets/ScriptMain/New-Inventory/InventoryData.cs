@@ -14,8 +14,6 @@ public class InventoryData : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        // CRITICAL: Only the Local Player (you) should trigger the UI.
-        // We don't want Player B's spawn to open Player A's inventory!
         if (IsServer)
         {
             InitializeInventory();
@@ -23,6 +21,17 @@ public class InventoryData : NetworkBehaviour
         if (IsOwner)
         {
             connectionSignal.UpdateInventoryData(this);
+        }
+
+        CraftingManager.Instance.OnRecipeCrafted -= OnRecieveCraftedItem;
+        CraftingManager.Instance.OnRecipeCrafted += OnRecieveCraftedItem;
+    }
+
+    private void OnRecieveCraftedItem(CraftingRecipeSO recipe)
+    {
+        if (recipe.resultItem != null && recipe.resultAmount > 0)
+        {
+            RequestAddItemServerRpc(recipe.resultItem.itemID, recipe.resultAmount);
         }
     }
 
@@ -38,10 +47,63 @@ public class InventoryData : NetworkBehaviour
             }
         }
 
-        InventoryItems[0] = new NetworkItems { ItemID = 1, Amount = 1 }; // e.g. Sword
-        InventoryItems[1] = new NetworkItems { ItemID = 2, Amount = 4 }; // e.g. Potions
+        InventoryItems[0] = new NetworkItems { ItemID = 4, Amount = 1 }; // e.g. Sword
+        InventoryItems[1] = new NetworkItems { ItemID = 5, Amount = 4 }; // e.g. Potions
+        InventoryItems[2] = new NetworkItems { ItemID = 17, Amount = 2 }; // e.g. Potions
 
         Debug.Log("Server: Inventory Initialized with Mock Data.");
+    }
+
+    public void AddItem(int itemId, int amount)
+    {
+        int count = 0;
+        for (int i = 0; i < InventoryItems.Count; i++)
+        {
+            if (InventoryItems[i].ItemID != 0) count++;
+            if (InventoryItems[i].ItemID == itemId)
+            {
+                var updatedItem = InventoryItems[i];
+                updatedItem.Amount += amount;
+                InventoryItems[i] = updatedItem;
+                return;
+            }
+        }
+
+        // 2. Logic: If not found, add a new entry
+        for (int i = 0; i < InventoryItems.Count; i++)
+        {
+            if (InventoryItems[i].ItemID == 0)
+            {
+                // Replace the empty slot with the new item
+                InventoryItems[i] = new NetworkItems
+                {
+                    ItemID = itemId,
+                    Amount = amount
+                };
+                Debug.Log($"Filled empty slot {i} with ItemID {itemId} x{amount}");
+                return;
+            }
+        }
+
+        Debug.LogWarning("Inventory is full! No empty slots or existing stacks available.");
+    }
+
+    public void RemoveItem(int itemId, int amount)
+    {
+        for (int i = 0; i < InventoryItems.Count; i++)
+        {
+            if (InventoryItems[i].ItemID == itemId)
+            {
+                var updatedItem = InventoryItems[i];
+                updatedItem.Amount -= amount;
+                if (updatedItem.Amount <= 0)
+                {
+                    updatedItem = new NetworkItems { ItemID = 0, Amount = 0 };
+                }
+                InventoryItems[i] = updatedItem; // Syncs the change
+                return;
+            }
+        }
     }
 
     [ServerRpc]
@@ -132,6 +194,19 @@ public class InventoryData : NetworkBehaviour
             }
         }
 
+    }
+
+    public int GetItemCount(int itemId)
+    {
+        int count = 0;
+        foreach (var item in InventoryItems)
+        {
+            if (item.ItemID == itemId)
+            {
+                count += item.Amount;
+            }
+        }
+        return count;
     }
 
     [ServerRpc]

@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79cfb68f21602e44daa4e394bb48e58d, type: 3}
   m_Name: Scrap
   m_EditorClassIdentifier: Assembly-CSharp::ItemSO
-  itemName: 
-  itemID: 0
+  itemName: Scrap
+  itemID: 12
   icon: {fileID: 0}
   equipmentPrefab: {fileID: 0}
   actionVFX: {fileID: 0}

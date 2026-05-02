@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: FriedChicken
   m_EditorClassIdentifier: Assembly-CSharp::ItemSO
   itemName: FriedChicken
-  itemID: 2
+  itemID: 14
   icon: {fileID: 21300000, guid: 5719b644e6d7eb942bbf1a3456f5b3c3, type: 3}
   equipmentPrefab: {fileID: 0}
   actionVFX: {fileID: 0}

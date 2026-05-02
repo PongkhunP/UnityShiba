@@ -30,6 +30,7 @@ public class CraftingMainUI : MonoBehaviour
     }
 
     private RecipeCategory currentCategory = RecipeCategory.Tools;
+    private CraftingRecipeSO currentSelectedRecipe;
     void Awake()
     {
         if (recipeContainer == null)
@@ -50,7 +51,7 @@ public class CraftingMainUI : MonoBehaviour
 
         foreach (CategoryButton cb in categoryButtons)
         {
-            RecipeCategory captured = cb.category; 
+            RecipeCategory captured = cb.category;
             cb.button.onClick.AddListener(() => OnCategoryButtonClicked(captured));
         }
     }
@@ -58,6 +59,13 @@ public class CraftingMainUI : MonoBehaviour
     public void OnRecipeUIIemClicked(CraftingRecipeSO recipe)
     {
         SelectRecipe(recipe);
+    }
+
+    public void OnCraftButtonClicked()
+    {
+        Debug.Log("Craft button clicked for recipe: " + (currentSelectedRecipe != null ? currentSelectedRecipe.recipeName : "None"));
+        if (currentSelectedRecipe == null) return;
+        CraftingManager.Instance.RequestCraftItemRpc(currentSelectedRecipe.recipeID);
     }
 
     void OnEnable()
@@ -113,7 +121,7 @@ public class CraftingMainUI : MonoBehaviour
 
     private void HandleRecipeCrafted(CraftingRecipeSO sO)
     {
-        throw new NotImplementedException();
+        Debug.Log("CraftingMainUI received OnRecipeCrafted event for recipe: " + sO.recipeName);
     }
 
     public void RefreshDisplay(int[] recipeIds)
@@ -153,20 +161,21 @@ public class CraftingMainUI : MonoBehaviour
             }
         }
 
-        CraftingRecipeSO defaultRecipe = GameDataManager.Instance.craftRecipeDatabase.GetRecipeByID(recipeIds[0]);
-        if (defaultRecipe != null)
+        if (recipeIds.Length > 0)
         {
-            SelectRecipe(defaultRecipe);
+            CraftingRecipeSO defaultRecipe = GameDataManager.Instance.craftRecipeDatabase.GetRecipeByID(recipeIds[0]);
+            if (defaultRecipe != null) SelectRecipe(defaultRecipe);
         }
     }
 
     public void SelectRecipe(CraftingRecipeSO recipe)
     {
+        currentSelectedRecipe = recipe;
         detailName.text = recipe.recipeName;
         detailDesc.text = recipe.description;
         detailIcon.sprite = recipe.icon;
 
-        if(recipe.itemPerk == null)
+        if (recipe.itemPerk == null)
         {
             perkIcon = null;
         }
@@ -175,13 +184,13 @@ public class CraftingMainUI : MonoBehaviour
             perkIcon = recipe.itemPerk.perkIcon;
         }
 
-        if(recipe.itemStat != null)
+        if (recipe.itemStat != null)
         {
-            foreach(Transform child in statContainer)
+            foreach (Transform child in statContainer)
             {
                 Destroy(child.gameObject);
             }
-            foreach(var stat in recipe.itemStat.itemStats)
+            foreach (var stat in recipe.itemStat.itemStats)
             {
                 Debug.Log($"Adding stat {stat.Type} with amount {stat.Amount} to craft stat UI.");
                 CraftStatUIItem item = Instantiate(craftStatUIItemPrefab, statContainer);

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Rope
   m_EditorClassIdentifier: Assembly-CSharp::ItemSO
   itemName: Rope
-  itemID: 5
+  itemID: 17
   icon: {fileID: 21300000, guid: 4b1178cbedcc951468f0367bfb8e50c2, type: 3}
   equipmentPrefab: {fileID: 0}
   actionVFX: {fileID: 0}
